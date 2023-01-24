@@ -4,8 +4,7 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     public GameObject playerPrefab;
-    public int amoutTree = 0;
-    private bool isEnter = false;
+    public float amoutTree = 0;
     private TextMeshProUGUI amoutTreeText;
     private Camera cameraMain;
 
@@ -21,27 +20,32 @@ public class PlayerScript : MonoBehaviour
     void FixedUpdate()
     {
         Move();
+        LeftMouseButton();
+    }
+
+    private void LeftMouseButton()
+    {
         bool lkm = Input.GetKey(KeyCode.Mouse0);
-        if (lkm && isEnter)
+        if (lkm)
         {
             RaycastHit2D hit = Physics2D.Raycast(
                 cameraMain.ScreenToWorldPoint(Input.mousePosition),
-                -Vector2.up);
-            var tree = hit.transform.parent.GetComponent<TreeScript>();
-            tree.health -= 10;
-            amoutTree += 10;
-            amoutTreeText.text = amoutTree.ToString();
+                -Vector3.forward);
+            Vector3 pos = playerPrefab.transform.position;
+            float dist = Vector3.Distance(pos, hit.point);
+            if (dist > 2)
+                return;
+            // if selected object is sourceable
+            if (hit.transform)
+            {
+                Resource resource = hit.transform?.parent?.GetComponent<Resource>();
+                if (resource)
+                {
+                    amoutTree += resource.GetResource(10);
+                    amoutTreeText.text = amoutTree.ToString();
+                }
+            }
         }
-    }
-
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        isEnter = true;
-    }
-
-    void OnTriggerExit2D(Collider2D collision)
-    {
-        isEnter = false;
     }
 
     private void Move()
