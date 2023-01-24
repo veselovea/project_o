@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
@@ -16,15 +13,22 @@ public class BuildingManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             Vector3 click = cameraMain.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 position;
-            position.x = (float)((float)Math.Round(click.x / 1) * 1);
-            position.y = (float)((float)Math.Round(click.y / 1) * 1);
-            position.z = 0;
+            RaycastHit2D hit = Physics2D.Raycast(click, -Vector3.forward);
 
-            Instantiate(blockPrefab, position, Quaternion.identity);
+            if (hit.transform == null || hit.transform.name != "HitBox")
+            {
+                Vector3 position;
+
+                position.x = Mathf.Round(click.x);
+                position.y = Mathf.Round(click.y);
+
+                position.z = 0;
+
+                Instantiate(blockPrefab, position, Quaternion.identity);
+            }
         }
     }
 }
