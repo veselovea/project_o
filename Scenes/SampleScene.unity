@@ -669,7 +669,9 @@ PrefabInstance:
       propertyPath: playerPrefab
       value: 
       objectReference: {fileID: 2091550924}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
+    - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
 --- !u!1 &967441524
 GameObject:
@@ -763,7 +765,7 @@ GameObject:
   - component: {fileID: 1690024897}
   - component: {fileID: 1690024896}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: PlayerUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

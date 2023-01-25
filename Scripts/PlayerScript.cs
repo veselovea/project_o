@@ -1,26 +1,42 @@
-using TMPro;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
     public GameObject playerPrefab;
-    public float amoutTree = 0;
-    private TextMeshProUGUI amoutTreeText;
     private Camera cameraMain;
+    private PlayerUI playerUI;
+    private PlayerInventory playerInventory;
 
-    void Start()
+    void Awake()
     {
         cameraMain = Camera.main;
-        GameObject canvas = GameObject.Find("Canvas");
-        var text = canvas.transform.GetChild(0);
-        amoutTreeText = text.GetComponent<TextMeshProUGUI>();
-        amoutTreeText.text = amoutTree.ToString();
+        playerInventory = GetComponent<PlayerInventory>();
+        playerUI = GetComponent<PlayerUI>();
+        playerInventory.ResourceAmountChangedEvent += playerUI.OnResourceAmountChanged;
+        playerUI.Initialize(playerInventory.AmountOfGameResources);
     }
 
     void FixedUpdate()
     {
         Move();
         LeftMouseButton();
+    }
+
+    void Update()
+    {
+        OthersButtonsOnKeyboard();
+    }
+
+    private void OthersButtonsOnKeyboard()
+    {
+        bool i = Input.GetKeyDown(KeyCode.I);
+        if (i)
+        {
+#warning Удолить дебаг
+            string t = playerInventory.IsOpen ? "open" : "close";
+            Debug.Log($"Inventory is {t}");
+            playerInventory.OpenOrCloseInventory();
+        }
     }
 
     private void LeftMouseButton()
@@ -38,11 +54,12 @@ public class PlayerScript : MonoBehaviour
             // if selected object is sourceable
             if (hit.transform)
             {
-                Resource resource = hit.transform?.parent?.GetComponent<Resource>();
+                GameResource resource = hit.transform?.parent?.GetComponent<GameResource>();
                 if (resource)
                 {
-                    amoutTree += resource.GetResource(10);
-                    amoutTreeText.text = amoutTree.ToString();
+                    Debug.Log("IS RESOURCE");
+                    playerInventory.AddGameResource(GameResources.Wood,
+                        resource.GetResource(10));
                 }
             }
         }

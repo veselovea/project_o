@@ -1,4 +1,4 @@
-public class WoodResource : Resource
+public class WoodResource : GameResource
 {
     public override GameResources Type => GameResources.Wood;
 
