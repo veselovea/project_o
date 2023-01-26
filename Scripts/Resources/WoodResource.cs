@@ -6,6 +6,6 @@ public class WoodResource : GameResource
 
     void Start()
     {
-        Health = 200;
+        Health = 7000;
     }
 }

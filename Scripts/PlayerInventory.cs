@@ -14,7 +14,10 @@ public class PlayerInventory : MonoBehaviour
 
     void Awake()
     {
-        inventoryInterface = GetComponentInChildren<Canvas>();
+        inventoryInterface = transform
+            .Find("InventoryUI")
+            .Find("MainInventory")
+            .GetComponent<Canvas>();
         inventoryInterface.enabled = IsOpen;
         AmountOfGameResources = new Dictionary<GameResources, float>(GameResource.CountOfGameResources);
         InventorySlots = new InventorySlot[10];

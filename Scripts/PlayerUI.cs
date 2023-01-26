@@ -4,18 +4,28 @@ using UnityEngine;
 
 public class PlayerUI : MonoBehaviour
 {
-    public TextMeshProUGUI AmoutTreeText { get; private set; }
+    public TextMeshProUGUI AmountWoodText { get; private set; }
+    public TextMeshProUGUI AmountStoneText { get; private set; }
 
     void Awake()
     {
-        GameObject canvas = GameObject.Find("PlayerUI");
-        Transform text = canvas.transform.GetChild(0);
-        AmoutTreeText = text.GetComponent<TextMeshProUGUI>();
+        Canvas canvas = transform
+            .Find("InventoryUI")
+            .Find("GameResources")
+            .GetComponent<Canvas>();
+        Transform panel = canvas.transform.GetChild(0);
+        AmountWoodText = panel
+            .Find("Wood")
+            .GetComponent<TextMeshProUGUI>();
+        AmountStoneText = panel
+            .Find("Stone")
+            .GetComponent<TextMeshProUGUI>();
     }
 
     public void Initialize(Dictionary<GameResources, float> resources)
     {
-        AmoutTreeText.text = $"WOOD: {resources[GameResources.Wood]}";
+        AmountWoodText.text = $"WOOD: {resources[GameResources.Wood]}";
+        AmountStoneText.text = $"STONE: {resources[GameResources.Stone]}";
     }
 
     public void OnResourceAmountChanged(GameResources resources, float amount)
@@ -23,7 +33,7 @@ public class PlayerUI : MonoBehaviour
         switch (resources)
         {
             case GameResources.Wood:
-                AmoutTreeText.text = $"WOOD: {amount}";
+                AmountWoodText.text = $"WOOD: {amount}";
                 break;
             case GameResources.Stone:
                 break;

@@ -33,9 +33,9 @@ public class PlayerScript : MonoBehaviour
         if (i)
         {
 #warning Удолить дебаг
+            playerInventory.OpenOrCloseInventory();
             string t = playerInventory.IsOpen ? "open" : "close";
             Debug.Log($"Inventory is {t}");
-            playerInventory.OpenOrCloseInventory();
         }
     }
 
@@ -103,5 +103,11 @@ public class PlayerScript : MonoBehaviour
             playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 135);
         else if (s && d)
             playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -135);
+        Vector3 cameraPos = Vector3.Lerp(
+            cameraMain.transform.position,
+            playerPrefab.transform.position,
+            Time.deltaTime * 5);
+        cameraPos.z = cameraMain.transform.position.z;
+        cameraMain.transform.position = cameraPos;
     }
 }
