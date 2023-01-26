@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
@@ -22,8 +23,9 @@ public class BuildingManager : MonoBehaviour
             {
                 Vector3 position;
 
-                position.x = Mathf.Round(click.x);
-                position.y = Mathf.Round(click.y);
+                position.x = (float)Math.Floor(click.x) + 0.5f;
+
+                position.y = (float)Math.Floor(click.y) + 0.5f;
 
                 position.z = 0;
 
