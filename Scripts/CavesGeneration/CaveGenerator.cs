@@ -2,16 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class CaveGenerator : MonoBehaviour
 {
     private List<Tuple<int, int>> GeneratedChunks { get; set; } = new();
     private Camera CameraMain { get; set; }
     public GameObject commonStoneBlock;
+    public GameObject chunkFloor;
+    private NavMeshGenerator NMG { get; set; }
     // Start is called before the first frame update
     void Start()
     {
         CameraMain = Camera.main;
+        NMG = GameObject.Find("NavMesh").GetComponent<NavMeshGenerator>();
     }
 
     // Update is called once per frame
@@ -41,36 +45,41 @@ public class CaveGenerator : MonoBehaviour
 
         if (!GeneratedChunks.Contains(cameraChunk))
         {
-            GenerateChunk(ceiledX, ceiledY);
-
             GeneratedChunks.Add(cameraChunk);
+
+            StartCoroutine(GenerateChunk(ceiledX, ceiledY));
         }
     }
 
-    int counter = 0;
-
-    private void GenerateChunk(int ceiledX, int ceiledY)
+    IEnumerator GenerateChunk(int ceiledX, int ceiledY)
     {
         float totalX = ceiledX * 10;
         float totalY = ceiledY * 10;
 
-        if(totalX < 0)
+        float centerX;
+        float centerY;
+
+        if (totalX < 0)
         {
+            centerX = totalX + 5;
             totalX += 0.5f;
         }
         else
         {
+            centerX = totalX - 5;
             totalX -= 0.5f;
         }
 
         float originalTotalX = totalX;
 
-        if(totalY < 0)
+        if (totalY < 0)
         {
+            centerY = totalY + 5;
             totalY += 0.5f;
         }
         else
         {
+            centerY = totalY - 5;
             totalY -= 0.5f;
         }
 
@@ -85,8 +94,7 @@ public class CaveGenerator : MonoBehaviour
                     Instantiate(commonStoneBlock, new Vector3(totalX, totalY, 0), Quaternion.identity);
                 }
 
-                counter++;
-                if(totalX < 0)
+                if (totalX < 0)
                 {
                     totalX++;
                 }
@@ -104,6 +112,14 @@ public class CaveGenerator : MonoBehaviour
             {
                 totalY--;
             }
+
+            yield return new WaitForSeconds(0.01f);
         }
+
+        GameObject newChunkFloor = Instantiate(chunkFloor, new Vector3(centerX, centerY, 0), Quaternion.identity);
+
+        yield return new WaitForSeconds(0.01f);
+
+        NMG.GenerateNavMesh();
     }
 }
