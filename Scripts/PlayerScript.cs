@@ -1,8 +1,14 @@
+using System;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
+    // Для теста
+    public GameObject network;
+
     public GameObject playerPrefab;
+    public Action<Vector3> PlayerChanegPositionEvent;
+
     private Camera cameraMain;
     private PlayerUI playerUI;
     private PlayerInventory playerInventory;
@@ -14,6 +20,10 @@ public class PlayerScript : MonoBehaviour
         playerUI = GetComponent<PlayerUI>();
         playerInventory.ResourceAmountChangedEvent += playerUI.OnResourceAmountChanged;
         playerUI.Initialize(playerInventory.AmountOfGameResources);
+
+        // Можно удалить
+        Network network = this.network.GetComponent<Network>();
+        PlayerChanegPositionEvent += network.OnPlayerPositionChanged;
     }
 
     void FixedUpdate()
@@ -109,5 +119,8 @@ public class PlayerScript : MonoBehaviour
             Time.deltaTime * 5);
         cameraPos.z = cameraMain.transform.position.z;
         cameraMain.transform.position = cameraPos;
+
+        // Удолить
+        PlayerChanegPositionEvent?.Invoke(playerPrefab.transform.position);
     }
 }
