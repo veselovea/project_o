@@ -1,40 +1,52 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    // Для теста
-    public GameObject network;
+    public GameObject _playerPrefab;
+    public bool _isRemotePlayer = false;
+    public Action<string> PlayerMoveEventHandler;
 
-    public GameObject playerPrefab;
-    public Action<Vector3> PlayerChanegPositionEvent;
-
-    private Camera cameraMain;
-    private PlayerUI playerUI;
-    private PlayerInventory playerInventory;
+    private Camera _cameraMain;
+    private PlayerUI _playerUI;
+    private PlayerInventory _playerInventory;
 
     void Awake()
     {
-        cameraMain = Camera.main;
-        playerInventory = GetComponent<PlayerInventory>();
-        playerUI = GetComponent<PlayerUI>();
-        playerInventory.ResourceAmountChangedEvent += playerUI.OnResourceAmountChanged;
-        playerUI.Initialize(playerInventory.AmountOfGameResources);
+        _playerInventory = GetComponent<PlayerInventory>();
+        _playerUI = GetComponent<PlayerUI>();
+        if (!_isRemotePlayer)
+            _cameraMain = Camera.main;
+    }
 
-        // Можно удалить
-        Network network = this.network.GetComponent<Network>();
-        PlayerChanegPositionEvent += network.OnPlayerPositionChanged;
+    void Start()
+    {
+        if (!_isRemotePlayer)
+        {
+            _playerInventory.ResourceAmountChangedEvent += _playerUI.OnResourceAmountChanged;
+            _playerUI.Initialize(_playerInventory.AmountOfGameResources);
+        }
+        else
+        {
+            Transform inventoryUI = transform.Find("InventoryUI");
+            inventoryUI.gameObject.SetActive(false);
+        }
     }
 
     void FixedUpdate()
     {
-        Move();
-        LeftMouseButton();
+        if (!_isRemotePlayer)
+        {
+            Move();
+            LeftMouseButton();
+        }
     }
 
     void Update()
     {
-        OthersButtonsOnKeyboard();
+        if (!_isRemotePlayer)
+            OthersButtonsOnKeyboard();
     }
 
     private void OthersButtonsOnKeyboard()
@@ -43,8 +55,8 @@ public class PlayerScript : MonoBehaviour
         if (i)
         {
 #warning Удолить дебаг
-            playerInventory.OpenOrCloseInventory();
-            string t = playerInventory.IsOpen ? "open" : "close";
+            _playerInventory.OpenOrCloseInventory();
+            string t = _playerInventory.IsOpen ? "open" : "close";
             Debug.Log($"Inventory is {t}");
         }
     }
@@ -55,9 +67,9 @@ public class PlayerScript : MonoBehaviour
         if (lkm)
         {
             RaycastHit2D hit = Physics2D.Raycast(
-                cameraMain.ScreenToWorldPoint(Input.mousePosition),
+                _cameraMain.ScreenToWorldPoint(Input.mousePosition),
                 -Vector3.forward);
-            Vector3 pos = playerPrefab.transform.position;
+            Vector3 pos = _playerPrefab.transform.position;
             float dist = Vector3.Distance(pos, hit.point);
             if (dist > 2)
                 return;
@@ -68,7 +80,7 @@ public class PlayerScript : MonoBehaviour
                 if (resource)
                 {
                     Debug.Log("IS RESOURCE");
-                    playerInventory.AddGameResource(GameResources.Wood,
+                    _playerInventory.AddGameResource(GameResources.Wood,
                         resource.GetResource(10));
                 }
             }
@@ -77,7 +89,7 @@ public class PlayerScript : MonoBehaviour
 
     private void Move()
     {
-        Vector3 pos = playerPrefab.transform.position;
+        Vector3 pos = _playerPrefab.transform.position;
         float speed = 0.06f;
         bool w, a, s, d;
         d = Input.GetKey(KeyCode.D);
@@ -87,40 +99,39 @@ public class PlayerScript : MonoBehaviour
 
         if (w)
         {
-            playerPrefab.transform.position += new Vector3(0, speed);
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 0);
+            _playerPrefab.transform.position += new Vector3(0, speed);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 0);
         }
         if (a)
         {
-            playerPrefab.transform.position += new Vector3(-speed, 0);
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 90);
+            _playerPrefab.transform.position += new Vector3(-speed, 0);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 90);
         }
         if (s)
         {
-            playerPrefab.transform.position += new Vector3(0, -speed);
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 180);
+            _playerPrefab.transform.position += new Vector3(0, -speed);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 180);
         }
         if (d)
         {
-            playerPrefab.transform.position += new Vector3(speed, 0);
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -90);
+            _playerPrefab.transform.position += new Vector3(speed, 0);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -90);
         }
         if (w && a)
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 45);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 45);
         else if (w && d)
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -45);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -45);
         else if (s && a)
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 135);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, 135);
         else if (s && d)
-            playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -135);
+            _playerPrefab.transform.rotation = Quaternion.Euler(0, 0, -135);
         Vector3 cameraPos = Vector3.Lerp(
-            cameraMain.transform.position,
-            playerPrefab.transform.position,
+            _cameraMain.transform.position,
+            _playerPrefab.transform.position,
             Time.deltaTime * 5);
-        cameraPos.z = cameraMain.transform.position.z;
-        cameraMain.transform.position = cameraPos;
+        cameraPos.z = _cameraMain.transform.position.z;
+        _cameraMain.transform.position = cameraPos;
 
-        // Удолить
-        PlayerChanegPositionEvent?.Invoke(playerPrefab.transform.position);
+        PlayerMoveEventHandler?.Invoke(_playerPrefab.transform.position.ToString());
     }
 }
