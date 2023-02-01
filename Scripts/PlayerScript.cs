@@ -21,9 +21,6 @@ public class PlayerScript : MonoBehaviour
         playerInventory.ResourceAmountChangedEvent += playerUI.OnResourceAmountChanged;
         playerUI.Initialize(playerInventory.AmountOfGameResources);
 
-        // Можно удалить
-        Network network = this.network.GetComponent<Network>();
-        PlayerChanegPositionEvent += network.OnPlayerPositionChanged;
     }
 
     void FixedUpdate()
