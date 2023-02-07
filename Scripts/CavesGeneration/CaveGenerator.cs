@@ -114,8 +114,6 @@ public class CaveGenerator : MonoBehaviour
         isCoolDown = false;
     }
 
-    int startCounter = 0;
-
     IEnumerator CheckCameraPosition()
     {
         int ceiledX;
@@ -409,6 +407,19 @@ public class CaveGenerator : MonoBehaviour
                     GameObject newBlock = Instantiate(commonStoneBlock, blockPosition, Quaternion.identity);
 
                     newChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(blockPosition, new Tuple<GameObject, GameObject>(commonStoneBlock, newBlock)));
+                }
+                else
+                {
+                    POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
+                    if (poi != null && !poi.AffectedChunks.Contains(newChunkNumber))
+                    {
+                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(newChunkNumber))
+                        {
+                            GameObject newBlock = Instantiate(POIblock.Item2, POIblock.Item1, Quaternion.identity);
+
+                            newChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(POIblock.Item1, new Tuple<GameObject, GameObject>(POIblock.Item2, newBlock)));
+                        }
+                    }
                 }
 
                 if (totalX < 0)
