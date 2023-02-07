@@ -4,22 +4,28 @@ using UnityEngine;
 
 public class WeaponSwitch : MonoBehaviour
 {
-    public GameObject sword;
-    public GameObject axe;
+    public GameObject[] Weapons;
 
     private void Update()
     {
         if(Input.GetKeyUp(KeyCode.V))
         {
-            if (sword.activeInHierarchy == true)
+            for (int i = 0; i < Weapons.Length; i++)
             {
-                sword.SetActive(false);
-                axe.SetActive(true);
-            }
-            else if (axe.activeInHierarchy == true)
-            {
-                axe.SetActive(false);
-                sword.SetActive(true);
+                if (Weapons[i].activeInHierarchy == true)
+                {
+                    Weapons[i].SetActive(false);
+
+                    if (i != 0)
+                    {
+                        Weapons[i - 1].SetActive(true);
+                    }
+                    else
+                    {
+                        Weapons[Weapons.Length - 1].SetActive(true);
+                    }
+                    break;
+                }
             }
         }   
     }
