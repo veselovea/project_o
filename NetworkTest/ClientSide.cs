@@ -69,41 +69,32 @@ internal class ClientSide
                 text += Encoding.ASCII.GetString(buffer);
             } while (_socket.Available > 0);
             LogEvent?.Invoke($"[>>] {text}");
-            await ReceiveHandlerAsync(text);
+            await ReceiveHandler(text);
         }
     }
 
-    private Task ReceiveHandlerAsync(string text)
+    private Task ReceiveHandler(string text)
     {
         return Task.Run(() =>
         {
-            GameNetworkObject networkObject = Serializer.GetObject<GameNetworkObject>(text);
-            switch (networkObject.Event)
+            GameNetworkPacket networkPacket = Serializer.GetObject<GameNetworkPacket>(text);
+            GameNetworkObject networkObject = Serializer.GetObject<GameNetworkObject>(networkPacket.Data);
+            switch (networkObject.Command)
             {
-                case GameEvents.None:
+                case GameCommands.None:
                     break;
-                case GameEvents.Join:
+                case GameCommands.Connect:
                     PlayerJoinEventHandler?.Invoke(networkObject.OwnerName);
                     break;
-                case GameEvents.Leave:
+                case GameCommands.Disconnect:
                     PlayerLeaveEventHandler?.Invoke(networkObject.OwnerName);
                     break;
-                case GameEvents.GameCommand:
-                    switch (networkObject.Command)
-                    {
-                        case GameCommands.None:
-                            break;
-                        case GameCommands.Move:
-                            break;
-                        case GameCommands.Attack:
-                            break;
-                        default:
-                            LogEvent?.Invoke("[XX] Unknow command");
-                            break;
-                    }
+                case GameCommands.Move:
+                    PlayerMoveEventHandler?.Invoke(networkObject.OwnerName, networkObject.CommandArgument);
+                    break;
+                case GameCommands.Attack:
                     break;
                 default:
-                    LogEvent?.Invoke("[XX] Unknow event");
                     break;
             }
         });

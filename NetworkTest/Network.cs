@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class Network : MonoBehaviour
 {
     public GameObject _playerPrefub;
+    public string _playerName;
 
-    private Action _executeMethodInMainThread;
+    private Action _executeInMainThread;
     private bool _isSending = false;
 
     private ClientSide _client;
@@ -18,21 +18,17 @@ public class Network : MonoBehaviour
 
     void Awake()
     {
-        _networkObject = new GameNetworkObject();
-        _networkObject.OwnerName = "UNITY_PLAYER";
-        _networkObject.Event = GameEvents.Join;
-        _networkObject.Command = GameCommands.None;
         _currentPlayer = GameObject.Instantiate(_playerPrefub, new Vector3(0, 0, 0), Quaternion.identity);
-        _currentPlayer.name = "UNITY_PLAYER";
+        _currentPlayer.name = _playerName;
         _currentPlayer.GetComponent<PlayerScript>().PlayerMoveEventHandler += PlayerMoving;
+
         _remotePlayers = new List<GameObject>();
-        _client = new ClientSide("127.0.0.1", 4000);
+
+        _client = new ClientSide("192.168.0.2", 4000);
         _client.LogEvent += Debug.Log;
         _client.PlayerJoinEventHandler += PlayerJoining;
         _client.PlayerLeaveEventHandler += PlayerLeaving;
         _client.PlayerMoveEventHandler += PlayerMoving;
-        _client.Start();
-        _ = _client.SendAsync(Serializer.GetJson(_networkObject));
     }
 
     void OnDestroy()
@@ -43,16 +39,16 @@ public class Network : MonoBehaviour
 
     void Update()
     {
-        if (_executeMethodInMainThread != null)
+        if (_executeInMainThread != null)
         {
-            _executeMethodInMainThread.Invoke();
-            _executeMethodInMainThread = null;
+            _executeInMainThread.Invoke();
+            _executeInMainThread = null;
         }
     }
 
     private void PlayerJoining(string name)
     {
-        _executeMethodInMainThread += () =>
+        _executeInMainThread += () =>
         {
             GameObject newPlayer = GameObject.Instantiate(_playerPrefub, new Vector3(0, 0, 0), Quaternion.identity);
             newPlayer.name = name;
@@ -63,9 +59,10 @@ public class Network : MonoBehaviour
 
     private void PlayerLeaving(string name)
     {
-        _executeMethodInMainThread += () =>
+        _executeInMainThread += () =>
         {
             GameObject player = _remotePlayers.Find(x => x.name == name);
+            _remotePlayers.Remove(player);
             Destroy(player);
         };
     }
@@ -74,24 +71,28 @@ public class Network : MonoBehaviour
     {
         if (!_isSending)
             StartCoroutine(PlayerMovingCoroutine(pos));
-
     }
 
     private void PlayerMoving(string name, string pos)
     {
-        GameObject player = _remotePlayers.Find(x => x.name == name);
-        Debug.Log(pos.Trim());
+        _executeInMainThread += () =>
+        {
+            GameObject player = _remotePlayers.Find(x => x.name == name);
+            string[] data = pos.Replace("(", "").Replace(")", "").Split(',');
+            float x = Convert.ToSingle(data[0]), y = Convert.ToSingle(data[1]);
+            Vector3 posPlayer = new Vector3(x, y, 0);
+            player.transform.position = posPlayer;
+        };
     }
 
     private IEnumerator PlayerMovingCoroutine(string pos)
     {
         _isSending = true;
         yield return new WaitForSecondsRealtime(10);
-        _networkObject.Event = GameEvents.GameCommand;
         _networkObject.Command = GameCommands.Move;
         _networkObject.CommandArgument = pos;
-        string json = Serializer.GetJson(_networkObject);
-        _ = _client.SendAsync(json);
+        //string json = Serializer.GetJson(_networkObject);
+        //_ = _client.SendAsync(json);
         _isSending = false;
     }
 
