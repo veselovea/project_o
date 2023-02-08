@@ -411,6 +411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1517621294}
   - component: {fileID: 1517621293}
+  - component: {fileID: 1517621295}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -425,7 +426,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1517621292}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78b0bf1f9d705f645904415543d2b50e, type: 3}
   m_Name: 
@@ -446,8 +447,25 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1517621295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517621292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c35b63719d47a24bb0ef4c9fe505349, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  commonStoneBlock: {fileID: 7970271923513250684, guid: 563514ba494ca5342a03487bc5413e54, type: 3}
+  chunkFloor: {fileID: 688300981063731494, guid: 7aae68f072378e745960d1c9db1b0a3c, type: 3}
+  caveCollider: {fileID: 5469097460733451164, guid: 81fb26e4c55341a4cb16dbc1e2cc9b8e, type: 3}
+  POIs:
+  - {fileID: 5077602992299132532, guid: 2f552f4946ac354438312417372c2d1c, type: 3}
 --- !u!1 &1653568547
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,6 +680,10 @@ PrefabInstance:
     - target: {fileID: 1346702780079641948, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1346702780079641948, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2061692024698026426, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
       propertyPath: m_AnchorMax.y
