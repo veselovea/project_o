@@ -6,10 +6,22 @@ public class Player : MonoBehaviour
 {
     private BoxCollider2D boxCollider;
     private Vector3 moveDelta;
+    private Weapons weapon;
+
+    public float speed;
 
     private void Start()
     {
         boxCollider = GetComponent<BoxCollider2D>();
+        weapon = GetComponentInChildren<Weapons>();
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            weapon.Attack();
+        }
     }
 
     private void FixedUpdate()
@@ -24,6 +36,6 @@ public class Player : MonoBehaviour
         else if (moveDelta.x < 0)
             transform.localScale = new Vector3(-1, 1, 1);
 
-        transform.Translate(moveDelta*Time.deltaTime);
+        transform.Translate(speed * moveDelta * Time.deltaTime);
     }
 }
