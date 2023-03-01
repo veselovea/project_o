@@ -231,6 +231,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 918099593590518225, guid: ce6efa3d3b31e9f45842f415ef88ae23, type: 3}
   m_PrefabInstance: {fileID: 969016696139462277}
   m_PrefabAsset: {fileID: 0}
+--- !u!50 &761415959
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761415955}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!61 &761415960
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761415955}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.000587414, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.1, y: 0.21}
+    newSize: {x: 0.1, y: 0.21}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.05888144, y: 0.21}
+  m_EdgeRadius: 0
 --- !u!1 &775154443
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,11 +770,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1738453400}
-  - component: {fileID: 1738453402}
   - component: {fileID: 1738453401}
+  - component: {fileID: 1738453402}
+  - component: {fileID: 1738453403}
   m_Layer: 11
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -771,7 +819,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: -0.2}
@@ -787,6 +835,27 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.8, y: 2.3}
   m_EdgeRadius: 0
+--- !u!50 &1738453403
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738453399}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &1960017868 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1380117891038656315, guid: 84bcdc11869a21041af56c5e8c05f3ec, type: 3}
@@ -887,6 +956,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 2768838084229798666, guid: ce6efa3d3b31e9f45842f415ef88ae23, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6efa3d3b31e9f45842f415ef88ae23, type: 3}
 --- !u!1001 &5446314455610725903
@@ -945,6 +1018,10 @@ PrefabInstance:
       value: Bat
       objectReference: {fileID: 0}
     - target: {fileID: 7006678471480162233, guid: 1336cef261bd85c478f9a46efff5a897, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006678471480162233, guid: 1336cef261bd85c478f9a46efff5a897, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
@@ -960,6 +1037,10 @@ PrefabInstance:
     - target: {fileID: 1380117891038656315, guid: 84bcdc11869a21041af56c5e8c05f3ec, type: 3}
       propertyPath: m_Name
       value: Hammer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1380117891038656315, guid: 84bcdc11869a21041af56c5e8c05f3ec, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 1380117891038656315, guid: 84bcdc11869a21041af56c5e8c05f3ec, type: 3}
       propertyPath: m_IsActive

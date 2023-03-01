@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum NamesOfWeapons
@@ -28,12 +29,6 @@ public abstract class Weapons : MonoBehaviour
         if (IsCanAttack)
         {
             Anim.SetTrigger("attack");
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.TransformPoint(Vector3.zero), RangeAttack);
-
-            for (int i = 0; i < enemies.Length; i++)
-            {
-                enemies[i].GetComponent<Enemy>().TakeDamage(Damage);
-            }
             StartCoroutine(Timeout());
         }
     }
