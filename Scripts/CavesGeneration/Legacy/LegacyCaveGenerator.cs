@@ -1,22 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AI;
-using System.Linq;
 
 public class LegacyCaveGenerator : MonoBehaviour
 {
-    private List<Tuple<int, int>> GeneratedChunkNumbers { get; set; } = new();
+    private List<ChunkObject> GeneratedChunks { get; set; } = new();
     private List<Tuple<int, int>> ShowedChunks { get; set; } = new();
-    private List<Tuple<Tuple<int, int>, List<Tuple<Vector3, Tuple<GameObject, GameObject>>>>> GeneratedChunks { get; set; } = new();
     private Camera CameraMain { get; set; }
-    public GameObject commonStoneBlock;
-    public GameObject chunkFloor;
-    public GameObject caveCollider;
     private NavMeshGenerator NMG { get; set; }
-
     private List<Vector3> GenerationPoints { get; set; } = new List<Vector3>
     {
         new Vector3(0,0,0),     //1
@@ -36,43 +28,12 @@ public class LegacyCaveGenerator : MonoBehaviour
         new Vector3(-20,-10,0)  //15
     };
 
-    //private List<Tuple<int, int>> LastCheckPoints { get; set; } = new List<Tuple<int, int>>
-    //{
-    //    new Tuple<int, int>(0,0),   //1
-    //    new Tuple<int, int>(0,0),   //2
-    //    new Tuple<int, int>(0,0),   //3
-    //    new Tuple<int, int>(0,0),   //4
-    //    new Tuple<int, int>(0,0),   //5
-    //    new Tuple<int, int>(0,0),   //6
-    //    new Tuple<int, int>(0,0),   //7
-    //    new Tuple<int, int>(0,0),   //8
-    //    new Tuple<int, int>(0,0),   //9
-    //    new Tuple<int, int>(0,0),   //10
-    //    new Tuple<int, int>(0,0),   //11
-    //    new Tuple<int, int>(0,0),   //12
-    //    new Tuple<int, int>(0,0),   //13
-    //    new Tuple<int, int>(0,0),   //14
-    //    new Tuple<int, int>(0,0)    //15
-    //};
+    public GameObject commonStoneBlock;
+    public GameObject chunkFloor;
+    public GameObject caveCollider;
 
-    //private List<Tuple<int, int>> CurrentCheckPoints { get; set; } = new List<Tuple<int, int>>
-    //{
-    //    new Tuple<int, int>(0,0),   //1
-    //    new Tuple<int, int>(0,0),   //2
-    //    new Tuple<int, int>(0,0),   //3
-    //    new Tuple<int, int>(0,0),   //4
-    //    new Tuple<int, int>(0,0),   //5
-    //    new Tuple<int, int>(0,0),   //6
-    //    new Tuple<int, int>(0,0),   //7
-    //    new Tuple<int, int>(0,0),   //8
-    //    new Tuple<int, int>(0,0),   //9
-    //    new Tuple<int, int>(0,0),   //10
-    //    new Tuple<int, int>(0,0),   //11
-    //    new Tuple<int, int>(0,0),   //12
-    //    new Tuple<int, int>(0,0),   //13
-    //    new Tuple<int, int>(0,0),   //14
-    //    new Tuple<int, int>(0,0)    //15
-    //};
+    public List<GameObject> POIs = new();
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -80,93 +41,39 @@ public class LegacyCaveGenerator : MonoBehaviour
         NMG = GameObject.Find("NavMesh").GetComponent<NavMeshGenerator>();
 
         Instantiate(caveCollider, Vector3.zero, Quaternion.identity);
+
+        lastCheckCameraPosition = Tuple.Create(0, 0);
     }
 
-    bool isCoolDown = false;
+    bool isCooldown = false;
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(isCoolDown == false)
+        if(isCooldown == false)
         {
             StartCoroutine(CoolDown());
 
-            StartCoroutine(CheckCameraPosition());
-
-            CheckCameraMovement();
-
-            CheckShowedChunks();
-        }
-    }
-
-    private void TryToGenerateCave(Vector3 point)
-    {
-        if(UnityEngine.Random.Range(1,16) == 1)
-        {
-            Instantiate(caveCollider, point, Quaternion.identity);
+            CheckCameraPosition();
         }
     }
 
     IEnumerator CoolDown()
     {
-        isCoolDown = true;
-        yield return new WaitForSeconds(0.2f);
-        isCoolDown = false;
+        isCooldown = true;
+        yield return new WaitForSeconds(0.1f);
+        isCooldown = false;
     }
 
-    IEnumerator CheckCameraPosition()
+    private Tuple<int, int> currentCheckCameraPosition;
+    private Tuple<int, int> lastCheckCameraPosition;
+
+    private void CheckCameraPosition()
     {
-        int ceiledX;
-        int ceiledY;
+        bool isNewChunkGenerated = false;
 
-        Vector3 generationPoint;
-
-        foreach (Vector3 point in GenerationPoints)
-        {
-            generationPoint = CameraMain.transform.TransformPoint(point);
-            ceiledX = (int)Math.Ceiling(generationPoint.x / 10);
-            ceiledY = (int)Math.Ceiling(generationPoint.y / 10);
-
-            if (generationPoint.x <= 0)
-            {
-                ceiledX--;
-            }
-
-            if (generationPoint.y <= 0)
-            {
-                ceiledY--;
-            }
-
-            Tuple<int, int> cameraChunk = Tuple.Create(ceiledX, ceiledY);
-
-            if (!GeneratedChunkNumbers.Contains(cameraChunk))
-            {
-                ShowedChunks.Add(cameraChunk);
-
-                GeneratedChunkNumbers.Add(cameraChunk);
-
-                yield return new WaitForSeconds(0.1f);
-
-                StartCoroutine(GenerateChunk(cameraChunk));
-            }
-            else if (!ShowedChunks.Contains(cameraChunk) && GeneratedChunks.Find(c => c.Item1.Item1 == cameraChunk.Item1 && c.Item1.Item2 == cameraChunk.Item2) != null)
-            {
-                ShowedChunks.Add(cameraChunk);
-
-                StartCoroutine(ReGenerateChunk(cameraChunk));
-
-                //Debug.Log("Add " + cameraChunk.Item1 + "|||" + cameraChunk.Item2);
-                //Debug.Log("---------------------------------------------------------------");
-            }
-        }
-
-    }
-
-
-    private Tuple<int, int> lastCameraChunk = null;
-    private void CheckShowedChunks()
-    {
         Vector3 cameraPosition = CameraMain.transform.position;
+
         int ceiledX = (int)Math.Ceiling(cameraPosition.x / 10);
         int ceiledY = (int)Math.Ceiling(cameraPosition.y / 10);
 
@@ -180,317 +87,416 @@ public class LegacyCaveGenerator : MonoBehaviour
             ceiledY--;
         }
 
-        Tuple<int, int> currentCameraChunk = Tuple.Create(ceiledX, ceiledY);
+        currentCheckCameraPosition = Tuple.Create(ceiledX, ceiledY);
 
-        if (currentCameraChunk != lastCameraChunk)
+        if (currentCheckCameraPosition.Item1 != lastCheckCameraPosition.Item1 || currentCheckCameraPosition.Item2 != lastCheckCameraPosition.Item2)
         {
-            bool isInside;
+            Vector3 generationPoint;
 
-            List<Tuple<int, int>> showedChunksToRemove = new();
-            foreach (Tuple<int, int> showedChunk in ShowedChunks)
+            foreach (Vector3 point in GenerationPoints)
             {
-                isInside = false;
-                foreach (Vector3 point in GenerationPoints)
+                generationPoint = CameraMain.transform.TransformPoint(point);
+
+                ceiledX = (int)Math.Ceiling(generationPoint.x / 10);
+                ceiledY = (int)Math.Ceiling(generationPoint.y / 10);
+
+                if (generationPoint.x <= 0)
                 {
-                    Vector3 worldPoint = CameraMain.transform.TransformPoint(point);
-
-                    ceiledX = (int)Math.Ceiling(worldPoint.x / 10);
-                    ceiledY = (int)Math.Ceiling(worldPoint.y / 10);
-
-                    if (worldPoint.x <= 0)
-                    {
-                        ceiledX--;
-                    }
-
-                    if (worldPoint.y <= 0)
-                    {
-                        ceiledY--;
-                    }
-
-                    if (showedChunk.Item1 == ceiledX && showedChunk.Item2 == ceiledY)
-                    {
-                        isInside = true;
-                        break;
-                    }
+                    ceiledX--;
                 }
 
-                if(isInside == false)
+                if (generationPoint.y <= 0)
                 {
-                    //Debug.Log("--------------------------------------------------------------- " + showedChunk.Item1 + "|||" + showedChunk.Item2);
-                    if (GeneratedChunks.Find(c => c.Item1.Item1 == showedChunk.Item1 && c.Item1.Item2 == showedChunk.Item2) != null)
-                    {
-                        //Debug.Log("---------------------------------------------------------------");
-                        //List<Tuple<Vector3, Tuple<GameObject, GameObject>>> currentChunk = GeneratedChunks.Find(c => c.Item1.Item1 == showedChunk.Item1 && c.Item1.Item2 == showedChunk.Item2).Item2;
-                        int currentChunkIndex = GeneratedChunks.IndexOf(GeneratedChunks.Find(c => c.Item1.Item1 == showedChunk.Item1 && c.Item1.Item2 == showedChunk.Item2));
+                    ceiledY--;
+                }
 
-                        foreach (Tuple<Vector3, Tuple<GameObject, GameObject>> block in GeneratedChunks[currentChunkIndex].Item2)
-                        {
-                            Destroy(block.Item2.Item2);
-                        }
+                Tuple<int, int> currentChunkPosition = Tuple.Create(ceiledX, ceiledY);
 
-                        StartCoroutine(ControlChunkCheck(currentChunkIndex));
+                ChunkObject currentChunk = GeneratedChunks.Find(c => c.ChunkPosition.Item1 == currentChunkPosition.Item1 && c.ChunkPosition.Item2 == currentChunkPosition.Item2);
 
-                        showedChunksToRemove.Add(showedChunk);
-                    }
+                if (currentChunk == null)
+                {
+                    GenerateChunk(currentChunkPosition);
+                    isNewChunkGenerated = true;
+                }
+                else if (!ShowedChunks.Contains(currentChunkPosition))
+                {
+                    RegenerateChunk(currentChunk);
+                }
+
+                if (!ShowedChunks.Contains(currentChunkPosition))
+                {
+                    ShowedChunks.Add(currentChunkPosition);
                 }
             }
 
-            foreach (Tuple<int, int> showedChunk in showedChunksToRemove)
+            CheckShowedChunks();
+
+            if(isNewChunkGenerated == true)
             {
-                ShowedChunks.Remove(showedChunk);
+                TryToGenerateCave();
+
+                TryToGeneratePOI();
+
+                StartCoroutine(RegenerateNavMesh());
             }
         }
 
-        lastCameraChunk = currentCameraChunk;
+        lastCheckCameraPosition = currentCheckCameraPosition;
     }
 
-    IEnumerator ControlChunkCheck(int chunkIndex)
+    IEnumerator RegenerateNavMesh()
     {
         yield return new WaitForSeconds(1f);
+        NMG.GenerateNavMesh();
+    }
 
-        int counter = 0;
-
-        try
+    private void TryToGenerateCave()
+    {
+        float roll = UnityEngine.Random.Range(1, 100);
+        if (roll > 70)
         {
-            foreach (Tuple<Vector3, Tuple<GameObject, GameObject>> block in GeneratedChunks[chunkIndex].Item2)
+            roll = UnityEngine.Random.Range(1, 100);
+            int multiplier1;
+            int multiplier2;
+
+            if (roll > 50)
             {
-                if (block.Item2.Item2 != null)
+                multiplier1 = 1;
+            }
+            else
+            {
+                multiplier1 = -1;
+            }
+
+            roll = UnityEngine.Random.Range(1, 100);
+
+            if (roll > 50)
+            {
+                multiplier2 = 1;
+            }
+            else
+            {
+                multiplier2 = -1;
+            }
+
+            Vector3 spawnPoint = CameraMain.transform.TransformPoint(
+                new Vector3(
+                    UnityEngine.Random.Range(20, 40) * multiplier1,
+                    UnityEngine.Random.Range(20, 40) * multiplier2,
+                    0
+                    )
+                );
+
+            int ceiledX = (int)Math.Ceiling(spawnPoint.x / 10);
+            int ceiledY = (int)Math.Ceiling(spawnPoint.y / 10);
+
+            if (spawnPoint.x <= 0)
+            {
+                ceiledX--;
+            }
+
+            if (spawnPoint.y <= 0)
+            {
+                ceiledY--;
+            }
+
+            if (GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY) == null)
+            {
+                Instantiate(caveCollider, spawnPoint, Quaternion.identity);
+            }
+        }
+    }
+
+    private void TryToGeneratePOI()
+    {
+        float roll = UnityEngine.Random.Range(1, 100);
+        if (roll > 70)
+        {
+            roll = UnityEngine.Random.Range(1, 100);
+            int multiplier1;
+            if (roll > 50)
+            {
+                multiplier1 = 1;
+            }
+            else
+            {
+                multiplier1 = -1;
+            }
+
+            int multiplier2;
+
+            roll = UnityEngine.Random.Range(1, 100);
+
+            if (roll > 50)
+            {
+                multiplier2 = 1;
+            }
+            else
+            {
+                multiplier2 = -1;
+            }
+
+            roll = UnityEngine.Random.Range(0, POIs.Count);
+
+            Vector3 spawnPosition = CameraMain.transform.TransformPoint
+                (
+                new Vector3
+                    (
+                        UnityEngine.Random.Range(30, 60) * multiplier1,
+                        UnityEngine.Random.Range(30, 60) * multiplier2,
+                        0
+                    )
+                );
+
+            spawnPosition.x = Mathf.Round(spawnPosition.x);
+            spawnPosition.y = Mathf.Round(spawnPosition.y);
+            spawnPosition.z = 0;
+
+            int ceiledX = (int)Math.Ceiling(spawnPosition.x / 10);
+            int ceiledY = (int)Math.Ceiling(spawnPosition.y / 10);
+
+            if (spawnPosition.x <= 0)
+            {
+                ceiledX--;
+            }
+
+            if (spawnPosition.y <= 0)
+            {
+                ceiledY--;
+            }
+
+            if(GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY) == null)
+            {
+                Instantiate(POIs[(int)roll], spawnPosition, Quaternion.identity);
+            }
+        }
+    }
+
+    private void CheckShowedChunks()
+    {
+        bool isInside;
+
+        List<Tuple<int, int>> showedChunksToRemove = new();
+
+        foreach (Tuple<int, int> showedChunk in ShowedChunks)
+        {
+            isInside = false;
+            foreach (Vector3 point in GenerationPoints)
+            {
+                Vector3 worldPoint = CameraMain.transform.TransformPoint(point);
+
+                int ceiledX = (int)Math.Ceiling(worldPoint.x / 10);
+                int ceiledY = (int)Math.Ceiling(worldPoint.y / 10);
+
+                if (worldPoint.x <= 0)
                 {
-                    counter++;
+                    ceiledX--;
+                }
 
-                    if (counter % 50 == 0)
-                    {
-                        //yield return new WaitForSeconds(0.2f);
-                    }
+                if (worldPoint.y <= 0)
+                {
+                    ceiledY--;
+                }
 
-                    Destroy(block.Item2.Item2);
+                if (showedChunk.Item1 == ceiledX && showedChunk.Item2 == ceiledY)
+                {
+                    isInside = true;
+                    break;
+                }
+            }
+
+            if (isInside == false)
+            {
+                if (GeneratedChunks.Find(c => c.ChunkPosition.Item1 == showedChunk.Item1 && c.ChunkPosition.Item1 == showedChunk.Item1) != null)
+                {
+                    ChunkObject chunk = GeneratedChunks.Find(c => c.ChunkPosition.Item1 == showedChunk.Item1 && c.ChunkPosition.Item2 == showedChunk.Item2);
+                    
+                    StartCoroutine(HideChunk(chunk));
+
+                    showedChunksToRemove.Add(showedChunk);
                 }
             }
         }
-        catch
+
+        foreach (Tuple<int, int> showedChunk in showedChunksToRemove)
         {
-            ControlChunkCheck(chunkIndex);
+            ShowedChunks.Remove(showedChunk);
         }
     }
 
-    private void CheckCameraMovement()
+    IEnumerator HideChunk(ChunkObject chunk)
     {
-        //int counter = 0;
-        //Vector3 generationPoint;
-        //int ceiledX;
-        //int ceiledY;
-
-        //foreach (Vector3 point in GenerationPoints)
-        //{
-        //    generationPoint = CameraMain.transform.TransformPoint(point);
-        //    ceiledX = (int)Math.Ceiling(generationPoint.x / 10);
-        //    ceiledY = (int)Math.Ceiling(generationPoint.y / 10);
-
-        //    if (generationPoint.x <= 0)
-        //    {
-        //        ceiledX--;
-        //    }
-
-        //    if (generationPoint.y <= 0)
-        //    {
-        //        ceiledY--;
-        //    }
-
-        //    Tuple<int, int> cameraChunk = Tuple.Create(ceiledX, ceiledY);
-        //    //CurrentCheckPoints[counter] = cameraChunk;
-
-        //    if (LastCheckPoints[counter].Item1 != cameraChunk.Item1 || LastCheckPoints[counter].Item2 != cameraChunk.Item2)
-        //    {
-        //        //Debug.Log("---------------------------------------------------------------------" + LastCheckPoints[counter] + "|||" + cameraChunk);
-
-        //        Debug.Log("---------------------------------------------------------------------");
-
-        //        LastCheckPoints[counter] = cameraChunk;
-
-        //        if (GeneratedChunks.Find(c => c.Item1.Item1 == cameraChunk.Item1 && c.Item1.Item2 == cameraChunk.Item2) != null)
-        //        {
-        //            List<Tuple<Vector3, GameObject>> currentChunk = GeneratedChunks.Find(c => c.Item1.Item1 == cameraChunk.Item1 && c.Item1.Item2 == cameraChunk.Item2).Item2;
-        //            foreach (Tuple<Vector3, GameObject> block in currentChunk)
-        //            {
-        //                Destroy(block.Item2);
-        //            }
-        //        }
-        //    }
-
-        //    //if (CurrentCheckPoints[counter] != LastCheckPoints[counter])
-        //    //{
-        //    //    //cameraChunk.Item1 != LastCheckPoints[counter].Item1 && cameraChunk.Item2 != LastCheckPoints[counter].Item2
-        //    //    //GeneratedChunks.Find(c => c.Item1.Item1 == cameraChunk.Item1 && c.Item1.Item2 == cameraChunk.Item2) != null
-        //    //    Debug.Log("---------------------------------------------------------------------");
-        //    //    if (startCounter >= 15)
-        //    //    {
-        //    //        List<Tuple<Vector3, GameObject>> currentChunk = GeneratedChunks.Find(c => c.Item1.Item1 == cameraChunk.Item1 && c.Item1.Item2 == cameraChunk.Item2).Item2;
-        //    //        foreach (Tuple<Vector3, GameObject> block in currentChunk)
-        //    //        {
-        //    //            Destroy(block.Item2);
-        //    //        }
-        //    //    }
-        //    //    else
-        //    //    {
-        //    //        startCounter++;
-        //    //    }
-        //    //}
-        //    //else
-        //    //{
-        //    //    //Debug.Log("---------------------------------------------------------------------" + CurrentCheckPoints[counter] + "|||" + LastCheckPoints[counter]);
-        //    //}
-
-        //    counter++;
-        //}
-
-        ////LastCheckPoints = CurrentCheckPoints;
-    }
-
-    IEnumerator GenerateChunk(Tuple<int, int> newChunkNumber)
-    {
-        TryToGenerateCave(new Vector3(newChunkNumber.Item1 * 10, newChunkNumber.Item2 * 10, 0));
-
-        yield return new WaitForSeconds(0.01f);
-
-        int ceiledX = newChunkNumber.Item1;
-        int ceiledY = newChunkNumber.Item2;
-
-        float totalX = ceiledX * 10;
-        float totalY = ceiledY * 10;
-
-        float centerX;
-        float centerY;
-
-        if (totalX < 0)
+        if(chunk.ChunkFloorClone != null)
         {
-            centerX = totalX + 5;
-            totalX += 0.5f;
-        }
-        else
-        {
-            centerX = totalX - 5;
-            totalX -= 0.5f;
+            Destroy(chunk.ChunkFloorClone);
         }
 
-        float originalTotalX = totalX;
-
-        if (totalY < 0)
+        int counter = 0;
+        foreach (ChunkBlock block in chunk.ChunkBlocks)
         {
-            centerY = totalY + 5;
-            totalY += 0.5f;
-        }
-        else
-        {
-            centerY = totalY - 5;
-            totalY -= 0.5f;
-        }
+            counter++;
 
-        List<Tuple<Vector3, Tuple<GameObject, GameObject>>> newChunk = new();
-
-        GeneratedChunks.Add(new Tuple<Tuple<int, int>, List<Tuple<Vector3, Tuple<GameObject, GameObject>>>>(newChunkNumber, newChunk));
-
-        GameObject newChunkFloor = Instantiate(chunkFloor, new Vector3(centerX, centerY, 0), Quaternion.identity);
-
-        yield return new WaitForSeconds(0.01f);
-
-        newChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(new Vector3(centerX, centerY, 0), new Tuple<GameObject, GameObject>(chunkFloor, newChunkFloor)));
-
-        for (int i = 0; i < 10; i++)
-        {
-            totalX = originalTotalX;
-            for (int j = 0; j < 10; j++)
+            if(counter % 50 == 0)
             {
-                Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(totalX, totalY), 0f);
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            Destroy(block.Clone);
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        if (!ShowedChunks.Contains(chunk.ChunkPosition))
+        {
+            foreach (ChunkBlock block in chunk.ChunkBlocks)
+            {
+                counter++;
+
+                if (counter % 50 == 0)
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+
+                Destroy(block.Clone);
+            }
+        }
+    }
+
+    private void GenerateChunk(Tuple<int, int>chunkPosition)
+    {
+        float startPointX = chunkPosition.Item1 * 10;
+        float startPointY = chunkPosition.Item2 * 10;
+
+        float chunkCenterX;
+        float chunkCenterY;
+
+        if (startPointX < 0)
+        {
+            chunkCenterX = startPointX + 5;
+            startPointX += 0.5f;
+        }
+        else
+        {
+            chunkCenterX = startPointX - 5;
+            startPointX -= 0.5f;
+        }
+
+        if (startPointY < 0)
+        {
+            chunkCenterY = startPointY + 5;
+            startPointY += 0.5f;
+        }
+        else
+        {
+            chunkCenterY = startPointY - 5;
+            startPointY -= 0.5f;
+        }
+
+        ChunkObject newChunk = new();
+
+        GeneratedChunks.Add(newChunk);
+
+        newChunk.ChunkPosition = chunkPosition;
+
+        newChunk.ChunkFloorPosition = new Vector3(chunkCenterX, chunkCenterY, 0);
+        newChunk.ChunkFloorOriginal = chunkFloor;
+        newChunk.ChunkFloorClone = Instantiate(chunkFloor, new Vector3(chunkCenterX, chunkCenterY, 0), Quaternion.identity);
+
+        newChunk.ChunkBlocks = new();
+
+        ChunkBlock chunkBlock;
+
+        float originalStartPointX = startPointX;
+
+        for (int x = 0; x < 10; x++)
+        {
+            startPointX = originalStartPointX;
+            for (int y = 0; y < 10; y++)
+            {
+                Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(startPointX, startPointY), 0f);
                 if (hitCollider == null)
                 {
-                    Vector3 blockPosition = new Vector3(totalX, totalY, 0);
-                    GameObject newBlock = Instantiate(commonStoneBlock, blockPosition, Quaternion.identity);
+                    chunkBlock = new();
 
-                    newChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(blockPosition, new Tuple<GameObject, GameObject>(commonStoneBlock, newBlock)));
+                    chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
+                    
+                    chunkBlock.Original = commonStoneBlock;
+
+                    newChunk.ChunkBlocks.Add(chunkBlock);
                 }
                 else
                 {
                     POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
-                    if (poi != null && !poi.AffectedChunks.Contains(newChunkNumber))
+                    if (poi != null)
                     {
-                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(newChunkNumber))
+                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition))
                         {
-                            GameObject newBlock = Instantiate(POIblock.Item2, POIblock.Item1, Quaternion.identity);
+                            chunkBlock = new();
 
-                            newChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(POIblock.Item1, new Tuple<GameObject, GameObject>(POIblock.Item2, newBlock)));
+                            chunkBlock.Position = POIblock.Item1;
+
+                            chunkBlock.Original = POIblock.Item2;
+
+                            newChunk.ChunkBlocks.Add(chunkBlock);
                         }
                     }
                 }
 
-                if (totalX < 0)
+                if (startPointX < 0)
                 {
-                    totalX++;
+                    startPointX++;
                 }
                 else
                 {
-                    totalX--;
+                    startPointX--;
                 }
             }
 
-            if (totalY < 0)
+            if (startPointY < 0)
             {
-                totalY++;
+                startPointY++;
             }
             else
             {
-                totalY--;
+                startPointY--;
             }
-
-            yield return new WaitForSeconds(0.01f);
         }
 
-        NMG.GenerateNavMesh();
+        StartCoroutine(InstantiateBlocksInChunk(newChunk));
     }
 
-    IEnumerator ReGenerateChunk(Tuple<int, int> ChunkNumber)
+    private void RegenerateChunk(ChunkObject chunk)
     {
-        //Debug.Log("Regenerate " + ChunkNumber.Item1 + "|||" + ChunkNumber.Item2);
-        if (GeneratedChunks.Find(c => c.Item1.Item1 == ChunkNumber.Item1 && c.Item1.Item2 == ChunkNumber.Item2) != null)
+        chunk.ChunkFloorClone = Instantiate(chunk.ChunkFloorOriginal, chunk.ChunkFloorPosition, Quaternion.identity);
+        StartCoroutine(InstantiateBlocksInChunk(chunk));
+    }
+
+    IEnumerator InstantiateBlocksInChunk(ChunkObject chunk)
+    {
+        int counter = 0;
+
+        foreach (ChunkBlock block in chunk.ChunkBlocks)
         {
-            //Debug.Log("---------------------------------------------------------------");
-            //List<Tuple<Vector3, Tuple<GameObject, GameObject>>> currentChunk = GeneratedChunks.Find(c => c.Item1.Item1 == ChunkNumber.Item1 && c.Item1.Item2 == ChunkNumber.Item2).Item2;
+            Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(block.Position.x, block.Position.y), 0f);
 
-            int currentChunkIndex = GeneratedChunks.IndexOf(GeneratedChunks.Find(c => c.Item1.Item1 == ChunkNumber.Item1 && c.Item1.Item2 == ChunkNumber.Item2));
-
-            //GeneratedChunks.Remove(GeneratedChunks.Find(c => c.Item1.Item1 == ChunkNumber.Item1 && c.Item1.Item2 == ChunkNumber.Item2));
-
-            List<Tuple<Vector3, Tuple<GameObject, GameObject>>> tempChunk = new List<Tuple<Vector3, Tuple<GameObject, GameObject>>>(GeneratedChunks[currentChunkIndex].Item2);
-
-            GeneratedChunks[currentChunkIndex].Item2.Clear();
-
-            int counter = 0;
-
-            GameObject newBlock;
-
-            List<Tuple<Vector3, Tuple<GameObject, GameObject>>> regeneratedChunk = new();
-
-            foreach (Tuple<Vector3, Tuple<GameObject, GameObject>> block in tempChunk)
+            if(hitCollider != null)
             {
-                if(counter % 50 == 0)
-                {
-                    yield return new WaitForSeconds(0.2f);
-                }
-
-                newBlock = Instantiate(block.Item2.Item1, block.Item1, Quaternion.identity);
-
-                GeneratedChunks[currentChunkIndex].Item2.Add
-                    (new Tuple<Vector3, Tuple<GameObject, GameObject>>(block.Item1, new Tuple<GameObject, GameObject>(block.Item2.Item1, newBlock)));
-
-                //regeneratedChunk.Add(new Tuple<Vector3, Tuple<GameObject, GameObject>>(block.Item1, new Tuple<GameObject, GameObject>(commonStoneBlock, newBlock)));
-
-                counter++;
+            POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
+            if (poi != null)
+            {
+                poi.BuildInChunk(chunk.ChunkPosition);
+            }
             }
 
-            //GeneratedChunks.Add(new Tuple<Tuple<int, int>, List<Tuple<Vector3, Tuple<GameObject, GameObject>>>>(ChunkNumber, regeneratedChunk));
+            counter++;
+
+            if(counter % 50 == 0)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            block.Clone = Instantiate(block.Original, block.Position, Quaternion.identity);
         }
-
-        yield return new WaitForSeconds(0.1f);
-
-        NMG.GenerateNavMesh();
     }
 }

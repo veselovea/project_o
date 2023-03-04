@@ -5,22 +5,40 @@ using UnityEngine;
 
 public class POIBuilder : MonoBehaviour
 {
-    private List<Tuple<Vector3, GameObject>> blocks = new();
+    public List<Tuple<Vector3, GameObject>> Blocks { get; set; } = new();
     public List<Tuple<int, int>> AffectedChunks { get; set; } = new();
+
     // Start is called before the first frame update
-    void Start()
-    {
-        foreach (POIBlueprintBlock blueprint in transform.GetComponentsInChildren<POIBlueprintBlock>())
-        {
-            blocks.Add(new Tuple<Vector3, GameObject>(blueprint.transform.position, blueprint.desiredBlock));
-            Destroy(blueprint.gameObject);
-        }
-    }
+    //void Start()
+    //{
+    //    foreach (POIBlueprintBlock blueprint in transform.GetComponentsInChildren<POIBlueprintBlock>())
+    //    {
+    //        Blocks.Add(new Tuple<Vector3, GameObject>(blueprint.transform.position, blueprint.desiredBlock));
+    //        Destroy(blueprint.gameObject);
+    //    }
+    //}
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void DetermineBlocks()
+    {
+        foreach (POIBlueprintBlock blueprint in transform.GetComponentsInChildren<POIBlueprintBlock>())
+        {
+            Blocks.Add(new Tuple<Vector3, GameObject>(blueprint.transform.position, blueprint.desiredBlock));
+            Destroy(blueprint.gameObject);
+        }
+    }
+
+    public void DestroyBlueprints()
+    {
+        foreach (POIBlueprintBlock blueprint in transform.GetComponentsInChildren<POIBlueprintBlock>())
+        {
+            Destroy(blueprint.gameObject);
+        }
     }
 
     public List<Tuple<Vector3, GameObject>> BuildInChunk(Tuple<int, int> chunkNumber)
@@ -31,7 +49,7 @@ public class POIBuilder : MonoBehaviour
         {
             AffectedChunks.Add(chunkNumber);
 
-            foreach (Tuple<Vector3, GameObject> block in blocks)
+            foreach (Tuple<Vector3, GameObject> block in Blocks)
             {
                 int ceiledX = (int)Math.Ceiling(block.Item1.x / 10);
                 int ceiledY = (int)Math.Ceiling(block.Item1.y / 10);
@@ -54,13 +72,13 @@ public class POIBuilder : MonoBehaviour
 
             foreach (Tuple<Vector3, GameObject> block in blocksToGenerate)
             {
-                blocks.Remove(block);
+                Blocks.Remove(block);
             }
 
-            if (blocks.Count == 0)
-            {
-                StartCoroutine(DelayedDestroy());
-            }
+            //if (Blocks.Count == 0)
+            //{
+            //    StartCoroutine(DelayedDestroy());
+            //}
         }
 
         return blocksToGenerate;
