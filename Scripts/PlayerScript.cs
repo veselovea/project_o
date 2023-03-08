@@ -54,10 +54,7 @@ public class PlayerScript : MonoBehaviour
         bool i = Input.GetKeyDown(KeyCode.I);
         if (i)
         {
-#warning Удолить дебаг
             _playerInventory.OpenOrCloseInventory();
-            string t = _playerInventory.IsOpen ? "open" : "close";
-            Debug.Log($"Inventory is {t}");
         }
     }
 

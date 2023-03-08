@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-internal class Serializer
+public class Serializer
 {
-    public static string GetJson(object from)
+    public static string GetJson(object from, Action<string> exceptionEvent = null)
     {
         try
         {
@@ -12,11 +12,12 @@ internal class Serializer
         }
         catch (Exception e)
         {
-            throw e;
+            exceptionEvent?.Invoke($"[XX] {e.Message}");
         }
+        return "";
     }
 
-    public static T GetObject<T>(string json) where T : class
+    public static T GetObject<T>(string json, Action<string> exceptionEvent = null) where T : class
     {
         try
         {
@@ -25,7 +26,8 @@ internal class Serializer
         }
         catch (Exception e)
         {
-            throw e;
+            exceptionEvent?.Invoke($"[XX] {e.Message}");
         }
+        return null;
     }
 }
