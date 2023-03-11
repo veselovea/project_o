@@ -19,9 +19,6 @@ public class ClientSide
         Logger = new Logger(LogLevel.Simple);
         _remote = new IPEndPoint(IPAddress.Parse(address), port);
         _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        _socket.Connect(_remote);
-        Logger.PrintLog("[**] Client created", LogLevel.Simple);
-        Logger.PrintLog($"[**] Client connected to {address}", LogLevel.Simple);
     }
 
     public void Start()
@@ -29,10 +26,12 @@ public class ClientSide
         if (_isStoped)
         {
             _socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
-            _socket.Connect(_remote);
             _isStoped = false;
         }
+        _socket.Connect(_remote);
         Task.Run(ReceiveAsync);
+        Logger.WriteLogMessage("[**] Client created", LogLevel.Simple);
+        Logger.WriteLogMessage($"[**] Client connected to {_remote}", LogLevel.Simple);
     }
 
     public void Stop()
@@ -42,21 +41,21 @@ public class ClientSide
             _socket.Shutdown(SocketShutdown.Both);
         _socket.Close();
         _socket.Dispose();
-        Logger.PrintLog($"[**] Client disconnected", LogLevel.Simple);
-        Logger.PrintLog("[**] Client stopped", LogLevel.Simple);
+        Logger.WriteLogMessage($"[**] Client disconnected", LogLevel.Simple);
+        Logger.WriteLogMessage("[**] Client stopped", LogLevel.Simple);
     }
 
     public async Task SendAsync(string text)
     {
         byte[] buffer = Encoding.ASCII.GetBytes(text);
         await _socket.SendToAsync(buffer, SocketFlags.None, _remote);
-        Logger.PrintLog($"[**] Sent {buffer.Length} bytes", LogLevel.Base);
-        Logger.PrintLog($"[**] Sent {text}", LogLevel.Advanced);
+        Logger.WriteLogMessage($"[<<] Sent {buffer.Length} bytes", LogLevel.Base);
+        Logger.WriteLogMessage($"[<<] Sent {text}", LogLevel.Advanced);
     }
 
     private async Task ReceiveAsync()
     {
-        while (true)
+        while (!_isStoped)
         {
             byte[] buffer = new byte[BufferSize];
             string text = "";
@@ -68,8 +67,8 @@ public class ClientSide
                 bytesAmount += buffer.Length;
             } while (_socket.Available > 0);
             await ReceiveHandler(text);
-            Logger.PrintLog($"[**] Received {bytesAmount} bytes", LogLevel.Base);
-            Logger.PrintLog($"[**] Received {text}", LogLevel.Advanced);
+            Logger.WriteLogMessage($"[>>] Received {bytesAmount} bytes", LogLevel.Base);
+            Logger.WriteLogMessage($"[>>] Received {text}", LogLevel.Advanced);
         }
     }
 

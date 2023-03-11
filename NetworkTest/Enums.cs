@@ -1,6 +1,7 @@
 ﻿public enum GeneralCommand 
 {
     PlayerInfo,
+    ConnectedPlayersInfo,
     GameCommand,
     Connect,
     Disconnect,
@@ -20,7 +21,7 @@ public enum ConnectionStatus
 }
 public enum ConnectionStatusDetails
 {
-    None,
+    Connected,
     CreatedNewRoom,
     ThePoolIsFullOrGameIsStarted,
     InvalidPoolCode,
@@ -28,6 +29,8 @@ public enum ConnectionStatusDetails
 }
 public enum NetworkObjectType
 {
+    None,
+    PlayerInfo,
     GameNetworkObject,
     ConnectionToPoolResult
 }
