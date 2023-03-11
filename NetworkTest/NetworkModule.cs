@@ -30,7 +30,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     {
         RemotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
         LocalPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, "Unity_Client_Test", ExecuteInMainThread);
-        _client = new ClientSideUnity("192.168.0.2", 4000, LocalPlayer, RemotePlayer);
+        _client = new ClientSideUnity("194.28.155.220", 4000, LocalPlayer, RemotePlayer);
         _client.Logger.LogEvent += Debug.Log;
         _client.Logger.Level = LogLevel.Advanced;
         _client.Start();
