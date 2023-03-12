@@ -11,8 +11,10 @@ public class ClientSide
     private Socket _socket;
     private EndPoint _remote;
     private bool _isStoped = false;
+    private bool _isReciveStarted = false;
 
     public Logger Logger { get; set; }
+    public bool IsReciveStarted => _isReciveStarted;
 
     public ClientSide(string address, ushort port)
     {
@@ -29,13 +31,15 @@ public class ClientSide
             _isStoped = false;
         }
         _socket.Connect(_remote);
-        Task.Run(ReceiveAsync);
         Logger.WriteLogMessage("[**] Client created", LogLevel.Simple);
         Logger.WriteLogMessage($"[**] Client connected to {_remote}", LogLevel.Simple);
+        _isReciveStarted = true;
+        ReceiveAsync();
     }
 
     public void Stop()
     {
+        _isReciveStarted = true;
         _isStoped = true;
         if (_socket.Connected)
             _socket.Shutdown(SocketShutdown.Both);
@@ -63,6 +67,7 @@ public class ClientSide
             do
             {
                 await _socket.ReceiveFromAsync(buffer, SocketFlags.None, _remote);
+                //_socket.ReceiveFrom(buffer, SocketFlags.None, ref _remote);
                 text += Encoding.ASCII.GetString(buffer);
                 bytesAmount += buffer.Length;
             } while (_socket.Available > 0);

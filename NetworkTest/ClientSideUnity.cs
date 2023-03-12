@@ -21,7 +21,7 @@ public class ClientSideUnity : ClientSide
             switch (packet.Command)
             {
                 case GeneralCommand.PlayerInfo:
-                    _localPlayer.UpdatePlayerInfo(packet.Player);
+                    _localPlayer.PlayerInfo = packet.Player;
                     break;
                 case GeneralCommand.ConnectedPlayersInfo:
                     PlayerInfo[] players = Serializer.GetObject<PlayerInfo[]>(packet.Data);
@@ -50,7 +50,7 @@ public class ClientSideUnity : ClientSide
                 case GeneralCommand.Connect:
                     if (packet.Type == NetworkObjectType.ConnectionToPoolResult)
                     {
-                        _localPlayer.UpdatePlayerInfo(packet.Player);
+                        _localPlayer.PlayerInfo = packet.Player;
                         _localPlayer.Connect();
                     }
                     else

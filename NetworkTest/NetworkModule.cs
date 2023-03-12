@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using UnityEngine.UIElements;
+using System.Threading;
 
 public interface INetworkModule
 {
@@ -20,6 +21,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     private ClientSideUnity _client;
     private Action _executeInMainThread;
     private bool _isSendingPlayerPostition;
+    private bool _canUpdatePlayerInfo;
 
     public GameObject _playerPrefub;
 
@@ -33,15 +35,23 @@ public class NetworkModule : MonoBehaviour, INetworkModule
         _client = new ClientSideUnity("194.28.155.220", 4000, LocalPlayer, RemotePlayer);
         _client.Logger.LogEvent += Debug.Log;
         _client.Logger.Level = LogLevel.Advanced;
-        _client.Start();
-        await UpdatePlayerInfo();
-        await ConnectToGame();
+        Thread reciever = new Thread(_client.Start);
+        reciever.Name = "Reciever";
+        reciever.IsBackground = false;
+        reciever.Start();
+        _canUpdatePlayerInfo = true;
+        if (_client.IsReciveStarted)
+        {
+            _canUpdatePlayerInfo = false;
+            await UpdatePlayerInfo();
+        }
         _isSendingPlayerPostition = false;
     }
 
     async void OnDestroy()
     {
-        await Disconnect();
+        if (LocalPlayer.PlayerInGame)
+            await Disconnect();
         _client.Stop();
     }
 
@@ -55,12 +65,21 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             StartCoroutine(SendPlayerPostitionTimeoutCoroutine(2f));
             await SendPlayerPosition();
         }
+        else if (!LocalPlayer.PlayerInGame && LocalPlayer.CanConnectToGame)
+        {
+            await ConnectToGame();
+        }
+        else if (!LocalPlayer.CanConnectToGame && _canUpdatePlayerInfo)
+        {
+            _canUpdatePlayerInfo = false;
+            StartCoroutine(UpdateInfoTimeoutCoroutine());
+            await UpdatePlayerInfo();
+        }
     }
 
     private void ExecuteInMainThread(Action action)
     {
         _executeInMainThread += action;
-        Debug.Log("added new action");
     }
 
     private async Task UpdatePlayerInfo()
@@ -101,14 +120,17 @@ public class NetworkModule : MonoBehaviour, INetworkModule
         _isSendingPlayerPostition = false;
     }
 
+    private IEnumerator UpdateInfoTimeoutCoroutine()
+    {
+        yield return new WaitForSecondsRealtime(5);
+        _canUpdatePlayerInfo = true;
+    }
+
     public Task ConnectToGame() => ConnectToGame(null);
     public async Task ConnectToGame(string code)
     {
-        while (true)
-        {
-            if (LocalPlayer.PlayerInfo.IP is not null)
-                break;
-        }
+        if (LocalPlayer.PlayerInfo.IP is null)
+            return;
         GameNetworkPacket packet = new GameNetworkPacket()
         {
             Player = LocalPlayer.PlayerInfo,
@@ -195,11 +217,9 @@ public class NetworkHandlerLocalPlayer
         _executeInMainThread = executeInMainThread;
     }
 
-    public PlayerInfo PlayerInfo => _playerInfo;
-    public bool PlayerInGame => PlayerInfo.GameCode != null;
-
-    public void UpdatePlayerInfo(PlayerInfo playerInfo) =>
-        _playerInfo = playerInfo;
+    public PlayerInfo PlayerInfo { get => _playerInfo; set => _playerInfo = value; }
+    public bool PlayerInGame => PlayerInfo.GameCode is not null;
+    public bool CanConnectToGame => _playerInfo.IP is not null;
 
     public PlayerTransform GetPlayerTransform()
     {
@@ -221,7 +241,6 @@ public class NetworkHandlerLocalPlayer
         {
             _playerPrefub = GameObject.Instantiate(_playerPrefub);
             _playerPrefub.name = _playerInfo.Name;
-            Debug.Log("Player created");
         });
     }
 }
