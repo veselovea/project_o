@@ -8,6 +8,7 @@ using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using UnityEngine.UIElements;
 using System.Threading;
+using System.Text;
 
 public interface INetworkModule
 {
@@ -32,18 +33,16 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     {
         RemotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
         LocalPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, "Unity_Client_Test", ExecuteInMainThread);
-        _client = new ClientSideUnity("194.28.155.220", 4000, LocalPlayer, RemotePlayer);
+        _client = new ClientSideUnity("90.188.226.136", 4000, LocalPlayer, RemotePlayer);
         _client.Logger.LogEvent += Debug.Log;
         _client.Logger.Level = LogLevel.Advanced;
-        Thread reciever = new Thread(_client.Start);
-        reciever.Name = "Reciever";
-        reciever.IsBackground = false;
-        reciever.Start();
+        _client.Start();
         _canUpdatePlayerInfo = true;
-        if (_client.IsReciveStarted)
+        if (_client.IsStarted)
         {
             _canUpdatePlayerInfo = false;
             await UpdatePlayerInfo();
+            StartCoroutine(UpdateInfoTimeoutCoroutine());
         }
         _isSendingPlayerPostition = false;
     }
@@ -92,7 +91,8 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             Data = null
         };
         string json = Serializer.GetJson(packet);
-        await _client.SendAsync(json);
+        byte[] data = Encoding.ASCII.GetBytes(json);
+        await _client.SendAsync(data);
     }
 
     private async Task SendPlayerPosition()
@@ -111,7 +111,8 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             Data = Serializer.GetJson(networkObject)
         };
         string json = Serializer.GetJson(packet);
-        await _client.SendAsync(json);
+        byte[] data = Encoding.ASCII.GetBytes(json);
+        await _client.SendAsync(data);
     }
 
     private IEnumerator SendPlayerPostitionTimeoutCoroutine(float time)
@@ -139,7 +140,8 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             Data = code
         };
         string json = Serializer.GetJson(packet);
-        await _client.SendAsync(json);
+        byte[] data = Encoding.ASCII.GetBytes(json);
+        await _client.SendAsync(data);
     }
     public async Task Disconnect()
     {
@@ -151,7 +153,8 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             Data = null
         };
         string json = Serializer.GetJson(packet);
-        await _client.SendAsync(json);
+        byte[] data = Encoding.ASCII.GetBytes(json);
+        await _client.SendAsync(data);
     }
 }
 

@@ -1,22 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text;
+using System.Threading.Tasks;
 
-public class ClientSideUnity : ClientSide
+public class ClientSideUnity : UDPClientSide
 {
     private NetworkHandlerLocalPlayer _localPlayer;
     private NetworkHandlerRemotePlayer _remotePlayer;
 
     public ClientSideUnity(string address, ushort port,
         NetworkHandlerLocalPlayer localPlayer, NetworkHandlerRemotePlayer remotePlayer)
-        : base(address, port)
+        : base(address, port, 5126)
     {
         _localPlayer = localPlayer;
         _remotePlayer = remotePlayer;
     }
 
-    protected override Task ReceiveHandler(string text)
+    protected override Task ReceiveHandler(byte[] data)
     {
         return Task.Run(() =>
         {
+            string text = Encoding.ASCII.GetString(data);
             GameNetworkPacket packet = Serializer.GetObject<GameNetworkPacket>(text);
             switch (packet.Command)
             {
