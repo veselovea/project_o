@@ -25,14 +25,15 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     private bool _canUpdatePlayerInfo;
 
     public GameObject _playerPrefub;
-
+    public string _playerName;
     public NetworkHandlerRemotePlayer RemotePlayer { get; set; }
     public NetworkHandlerLocalPlayer LocalPlayer { get; set; }
 
     async void Awake()
     {
+        _playerName = $"player #{new System.Random().Next(1000)}";
         RemotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
-        LocalPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, "Unity_Client_Test", ExecuteInMainThread);
+        LocalPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, ExecuteInMainThread);
         _client = new ClientSideUnity("90.188.226.136", 4000, LocalPlayer, RemotePlayer);
         _client.Logger.LogEvent += Debug.Log;
         _client.Logger.Level = LogLevel.Advanced;
@@ -178,6 +179,7 @@ public class NetworkHandlerRemotePlayer
         _executeInMainThread?.Invoke(() =>
         {
             GameObject player = GameObject.Instantiate<GameObject>(_playerPrefub);
+            player.GetComponent<PlayerScript>()._isRemotePlayer = true;
             player.name = playerInfo.Name;
             _remotePlayers.Add(player);
         });
@@ -202,7 +204,6 @@ public class NetworkHandlerRemotePlayer
         {
             player.transform.position = position;
             player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
-
         });
     }
 }
