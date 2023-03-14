@@ -92,12 +92,19 @@ public class UDPClientSide
     {
         while (_isStarted)
         {
-            UdpReceiveResult result = await _client.ReceiveAsync();
-            if (!result.RemoteEndPoint.Equals(_remote))
-                continue;
-            byte[] buffer = result.Buffer;
-            await Logger.WriteLogMessage($"[>>] Received {buffer.Length} bytes", LogLevel.Base);
-            await ReceiveHandler(buffer);
+            try
+            {
+                UdpReceiveResult result = await _client.ReceiveAsync();
+                if (!result.RemoteEndPoint.Equals(_remote))
+                    continue;
+                byte[] buffer = result.Buffer;
+                await Logger.WriteLogMessage($"[>>] Received {buffer.Length} bytes", LogLevel.Base);
+                await ReceiveHandler(buffer);
+            }
+            catch (Exception e)
+            {
+                await Logger.WriteLogMessage($"[XX] {e.Message}", LogLevel.Simple);
+            }
         }
     }
 

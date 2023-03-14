@@ -1,13 +1,7 @@
-using Mono.Cecil.Cil;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using UnityEngine.UIElements;
-using System.Threading;
 using System.Text;
 
 public interface INetworkModule
@@ -156,95 +150,5 @@ public class NetworkModule : MonoBehaviour, INetworkModule
         string json = Serializer.GetJson(packet);
         byte[] data = Encoding.ASCII.GetBytes(json);
         await _client.SendAsync(data);
-    }
-}
-
-public class NetworkHandlerRemotePlayer
-{
-    private GameObject _playerPrefub;
-    private Action<Action> _executeInMainThread;
-    private List<GameObject> _remotePlayers;
-
-    public NetworkHandlerRemotePlayer(GameObject playerPrefub, Action<Action> executeInMainThread)
-    {
-        _playerPrefub = playerPrefub;
-        _executeInMainThread = executeInMainThread;
-        _remotePlayers = new List<GameObject>(8);
-    }
-
-    // Можно не удалять объект, а просто скрывать и перемещать в начальную позицию
-
-    public void Born(PlayerInfo playerInfo)
-    {
-        _executeInMainThread?.Invoke(() =>
-        {
-            GameObject player = GameObject.Instantiate<GameObject>(_playerPrefub);
-            player.GetComponent<PlayerScript>()._isRemotePlayer = true;
-            player.name = playerInfo.Name;
-            _remotePlayers.Add(player);
-        });
-    }
-
-    public void Dead(PlayerInfo playerInfo)
-    {
-        GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
-        _executeInMainThread?.Invoke(() =>
-        {
-            GameObject.Destroy(player);
-            _remotePlayers.Remove(player);
-        });
-    }
-
-    public void Move(PlayerInfo playerInfo, string pos)
-    {
-        PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
-        Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
-        GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
-        _executeInMainThread?.Invoke(() =>
-        {
-            player.transform.position = position;
-            player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
-        });
-    }
-}
-
-public class NetworkHandlerLocalPlayer
-{
-    private GameObject _playerPrefub;
-    private PlayerInfo _playerInfo;
-    private Action<Action> _executeInMainThread;
-
-    public NetworkHandlerLocalPlayer(GameObject playerPrefub, string playerName, Action<Action> executeInMainThread)
-    {
-        _playerPrefub = playerPrefub;
-        _playerInfo = new PlayerInfo() { Name = playerName };
-        _executeInMainThread = executeInMainThread;
-    }
-
-    public PlayerInfo PlayerInfo { get => _playerInfo; set => _playerInfo = value; }
-    public bool PlayerInGame => PlayerInfo.GameCode is not null;
-    public bool CanConnectToGame => _playerInfo.IP is not null;
-
-    public PlayerTransform GetPlayerTransform()
-    {
-        PlayerTransform transform = new PlayerTransform()
-        {
-            PositionX = _playerPrefub.transform.position.x,
-            PositionY = _playerPrefub.transform.position.y,
-            PositionZ = _playerPrefub.transform.position.z,
-            RotationX = _playerPrefub.transform.rotation.x,
-            RotationY = _playerPrefub.transform.rotation.y,
-            RotationZ = _playerPrefub.transform.rotation.z
-        };
-        return transform;
-    }
-
-    public void Connect()
-    {
-        _executeInMainThread?.Invoke(() =>
-        {
-            _playerPrefub = GameObject.Instantiate(_playerPrefub);
-            _playerPrefub.name = _playerInfo.Name;
-        });
     }
 }
