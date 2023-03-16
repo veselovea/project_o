@@ -14,21 +14,25 @@ public interface INetworkModule
 public class NetworkModule : MonoBehaviour, INetworkModule
 {
     private ClientSideUnity _client;
+    private NetworkHandlerRemotePlayer _remotePlayer;
+    private NetworkHandlerLocalPlayer _localPlayer;
+
     private Action _executeInMainThread;
     private bool _isSendingPlayerPostition;
     private bool _canUpdatePlayerInfo;
 
+    private BotManager _botManager;
+
     public GameObject _playerPrefub;
     public string _playerName;
-    public NetworkHandlerRemotePlayer RemotePlayer { get; set; }
-    public NetworkHandlerLocalPlayer LocalPlayer { get; set; }
 
     async void Awake()
     {
         _playerName = $"player #{new System.Random().Next(1000)}";
-        RemotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
-        LocalPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, ExecuteInMainThread);
-        _client = new ClientSideUnity("90.188.226.136", 4000, LocalPlayer, RemotePlayer);
+        _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
+        _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, ExecuteInMainThread);
+        //_client = new ClientSideUnity("90.188.226.136", 4000, _localPlayer, _remotePlayer);
+        _client = new ClientSideUnity("192.168.0.2", 4000, _localPlayer, _remotePlayer);
         _client.Logger.LogEvent += Debug.Log;
         _client.Logger.Level = LogLevel.Advanced;
         _client.Start();
@@ -40,35 +44,57 @@ public class NetworkModule : MonoBehaviour, INetworkModule
             StartCoroutine(UpdateInfoTimeoutCoroutine());
         }
         _isSendingPlayerPostition = false;
+        _botManager = new BotManager(2, 5102);
+        Task.Run(PostAwake);
     }
 
     async void OnDestroy()
     {
-        if (LocalPlayer.PlayerInGame)
+        if (_botManager.IsStarted)
+            _botManager.StopSession();
+        if (_localPlayer.PlayerInGame)
             await Disconnect();
         _client.Stop();
     }
 
-    async void Update()
+    void Update()
     {
         _executeInMainThread?.Invoke();
         _executeInMainThread = null;
-        if (LocalPlayer.PlayerInGame && !_isSendingPlayerPostition)
+    }
+
+    private Task PostAwake()
+    {
+        while (_client.IsStarted)
         {
-            _isSendingPlayerPostition = true;
-            StartCoroutine(SendPlayerPostitionTimeoutCoroutine(2f));
-            await SendPlayerPosition();
+            if (_executeInMainThread is null)
+            {
+                _executeInMainThread += async () =>
+                {
+                    if (_localPlayer.PlayerInGame && !_isSendingPlayerPostition)
+                    {
+                        _isSendingPlayerPostition = true;
+                        StartCoroutine(SendPlayerPostitionTimeoutCoroutine(2f));
+                        await SendPlayerPosition();
+                    }
+                    else if (!_localPlayer.PlayerInGame && _localPlayer.CanConnectToGame && _canUpdatePlayerInfo)
+                    {
+                        await ConnectToGame();
+                        _canUpdatePlayerInfo = false;
+                        StartCoroutine(UpdateInfoTimeoutCoroutine());
+                    }
+                    else if (!_localPlayer.CanConnectToGame && _canUpdatePlayerInfo)
+                    {
+                        _canUpdatePlayerInfo = false;
+                        StartCoroutine(UpdateInfoTimeoutCoroutine());
+                        await UpdatePlayerInfo();
+                    }
+                };
+            }
+            if (!_botManager.IsStarted && _localPlayer.PlayerInGame)
+                _botManager.StartSession();
         }
-        else if (!LocalPlayer.PlayerInGame && LocalPlayer.CanConnectToGame)
-        {
-            await ConnectToGame();
-        }
-        else if (!LocalPlayer.CanConnectToGame && _canUpdatePlayerInfo)
-        {
-            _canUpdatePlayerInfo = false;
-            StartCoroutine(UpdateInfoTimeoutCoroutine());
-            await UpdatePlayerInfo();
-        }
+        return Task.CompletedTask;
     }
 
     private void ExecuteInMainThread(Action action)
@@ -80,7 +106,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     {
         GameNetworkPacket packet = new GameNetworkPacket
         {
-            Player = LocalPlayer.PlayerInfo,
+            Player = _localPlayer.PlayerInfo,
             Command = GeneralCommand.PlayerInfo,
             Type = NetworkObjectType.None,
             Data = null
@@ -92,7 +118,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
 
     private async Task SendPlayerPosition()
     {
-        PlayerTransform transform = LocalPlayer.GetPlayerTransform();
+        PlayerTransform transform = _localPlayer.GetPlayerTransform();
         GameNetworkObject networkObject = new GameNetworkObject()
         {
             Command = GameCommand.Move,
@@ -100,7 +126,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
         };
         GameNetworkPacket packet = new GameNetworkPacket()
         {
-            Player = LocalPlayer.PlayerInfo,
+            Player = _localPlayer.PlayerInfo,
             Command = GeneralCommand.GameCommand,
             Type = NetworkObjectType.GameNetworkObject,
             Data = Serializer.GetJson(networkObject)
@@ -125,11 +151,11 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     public Task ConnectToGame() => ConnectToGame(null);
     public async Task ConnectToGame(string code)
     {
-        if (LocalPlayer.PlayerInfo.IP is null)
+        if (_localPlayer.PlayerInfo.IP is null)
             return;
         GameNetworkPacket packet = new GameNetworkPacket()
         {
-            Player = LocalPlayer.PlayerInfo,
+            Player = _localPlayer.PlayerInfo,
             Command = GeneralCommand.Connect,
             Type = NetworkObjectType.None,
             Data = code
@@ -142,7 +168,7 @@ public class NetworkModule : MonoBehaviour, INetworkModule
     {
         GameNetworkPacket packet = new GameNetworkPacket()
         {
-            Player = LocalPlayer.PlayerInfo,
+            Player = _localPlayer.PlayerInfo,
             Command = GeneralCommand.Disconnect,
             Type = NetworkObjectType.None,
             Data = null

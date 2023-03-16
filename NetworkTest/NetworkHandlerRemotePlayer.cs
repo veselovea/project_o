@@ -19,10 +19,10 @@ public class NetworkHandlerRemotePlayer
 
     public void Born(PlayerInfo playerInfo)
     {
-        if (_remotePlayers.Find(x => x.name == playerInfo.Name) is not null)
-            return;
         _executeInMainThread?.Invoke(() =>
         {
+            if (_remotePlayers.Find(x => x.name == playerInfo.Name) is not null)
+                return;
             GameObject player = GameObject.Instantiate<GameObject>(_playerPrefub);
             player.GetComponent<PlayerScript>()._isRemotePlayer = true;
             player.name = playerInfo.Name;
@@ -32,9 +32,9 @@ public class NetworkHandlerRemotePlayer
 
     public void Dead(PlayerInfo playerInfo)
     {
-        GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
         _executeInMainThread?.Invoke(() =>
         {
+            GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
             GameObject.Destroy(player);
             _remotePlayers.Remove(player);
         });
@@ -43,10 +43,11 @@ public class NetworkHandlerRemotePlayer
     public void Move(PlayerInfo playerInfo, string pos)
     {
         PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
-        Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
-        GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
         _executeInMainThread?.Invoke(() =>
         {
+            Debug.Log(pos);
+            Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
+            GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
             player.transform.position = position;
             player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
         });

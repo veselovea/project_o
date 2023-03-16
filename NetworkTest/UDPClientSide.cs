@@ -13,6 +13,7 @@ public class UDPClientSide
     private IPEndPoint _remote;
     private bool _isFirstInit = true;
     private bool _isStarted = false;
+    private bool _isDisposed = false;
     private ushort _localPort;
 
     public UDPClientSide(string address, ushort remotePort, ushort localPort)
@@ -27,15 +28,6 @@ public class UDPClientSide
         _receiver = new Thread(() => ReceiverAsync());
         _localPort = localPort;
         Logger = new Logger(LogLevel.Simple);
-
-        Thread checker = new Thread(() =>
-        {
-            while (true)
-            {
-                Thread.Sleep(400);
-                Logger.WriteLogMessage($"[**] Receiver state: {_receiver.ThreadState}", LogLevel.Simple);
-            }
-        });
     }
 
     public Logger Logger { get; set; }
@@ -57,6 +49,7 @@ public class UDPClientSide
         }
         else
             _isFirstInit = false;
+        _isDisposed = false;
         _client.Connect(_remote);
         _receiver.Start();
         _isStarted = true;
@@ -73,6 +66,7 @@ public class UDPClientSide
         }
 
         _isStarted = false;
+        _isDisposed = true;
         _client.Close();
         _client.Dispose();
         Logger.WriteLogMessage($"[**] Client disconnected", LogLevel.Simple);
@@ -81,7 +75,7 @@ public class UDPClientSide
 
     public async Task SendAsync(byte[] data)
     {
-        if (_isStarted)
+        if (!_isDisposed)
         {
             await Logger.WriteLogMessage($"[<<] Sent {data.Length} bytes", LogLevel.Base);
             await _client.SendAsync(data, data.Length);
@@ -103,7 +97,7 @@ public class UDPClientSide
             }
             catch (Exception e)
             {
-                await Logger.WriteLogMessage($"[XX] {e.Message}", LogLevel.Simple);
+                await Logger.WriteLogMessage($"[XX] {e.Message} {e.Source} {e.StackTrace}", LogLevel.Simple);
             }
         }
     }

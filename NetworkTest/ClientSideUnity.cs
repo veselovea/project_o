@@ -14,6 +14,14 @@ public class ClientSideUnity : UDPClientSide
         _remotePlayer = remotePlayer;
     }
 
+    public ClientSideUnity(string address, ushort port, ushort localPort,
+        NetworkHandlerLocalPlayer localPlayer, NetworkHandlerRemotePlayer remotePlayer)
+        : base(address, port, localPort)
+    {
+        _localPlayer = localPlayer;
+        _remotePlayer = remotePlayer;
+    }
+
     protected override Task ReceiveHandler(byte[] data)
     {
         return Task.Run(() =>
