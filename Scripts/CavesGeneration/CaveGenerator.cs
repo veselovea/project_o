@@ -43,8 +43,11 @@ public class CaveGenerator : MonoBehaviour
     public GameObject commonStoneBlock;
     public GameObject chunkFloor;
     public GameObject caveCollider;
+    public GameObject resourceCollider;
 
     public List<GameObject> POIs = new();
+    public List<GameObject> Resources = new();
+    public List<GameObject> Enemies = new();
 
     // Start is called before the first frame update
     void Awake()
@@ -174,6 +177,7 @@ public class CaveGenerator : MonoBehaviour
                 else if (!ShowedChunks.Contains(currentChunkPosition))
                 {
                     RegenerateChunk(currentChunk);
+                    isNewChunkGenerated = true;
                 }
 
                 if (!ShowedChunks.Contains(currentChunkPosition))
@@ -253,10 +257,32 @@ public class CaveGenerator : MonoBehaviour
 
     IEnumerator HideChunk(ChunkObject chunk)
     {
-        if(chunk.ChunkFloorClone != null)
+        if (chunk.ChunkFloorClone != null)
         {
             Destroy(chunk.ChunkFloorClone);
         }
+
+        List<ChunkBlock> blocksToDelete = new();
+        List<EnemyOnChunk> enemiesToDelete = new();
+
+        foreach (EnemyOnChunk enemy in chunk.Enemies)
+        {
+            if(enemy.Clone != null)
+            {
+                Destroy(enemy.Clone);
+            }
+            else
+            {
+                enemiesToDelete.Add(enemy);
+            }
+        }
+
+        //foreach (EnemyOnChunk enemy in enemiesToDelete)
+        //{
+        //    chunk.Enemies.Remove(enemy);
+        //}
+
+        enemiesToDelete.Clear();
 
         int counter = 0;
         foreach (ChunkBlock block in chunk.ChunkBlocks)
@@ -268,8 +294,22 @@ public class CaveGenerator : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
             }
 
-            Destroy(block.Clone);
+            if (block.Clone != null)
+            {
+                Destroy(block.Clone);
+            }
+            else
+            {
+                blocksToDelete.Add(block);
+            }
         }
+
+        //foreach (ChunkBlock block in blocksToDelete)
+        //{
+        //    chunk.ChunkBlocks.Remove(block);
+        //}
+
+        blocksToDelete.Clear();
 
         yield return new WaitForSeconds(2f);
 
@@ -283,10 +323,23 @@ public class CaveGenerator : MonoBehaviour
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
-
-                Destroy(block.Clone);
+                if (block.Clone != null)
+                {
+                    Destroy(block.Clone);
+                }
+                else
+                {
+                    blocksToDelete.Add(block);
+                }
             }
         }
+
+        //foreach (ChunkBlock block in blocksToDelete)
+        //{
+        //    chunk.ChunkBlocks.Remove(block);
+        //}
+
+        blocksToDelete.Clear();
     }
 
     private void GenerateChunk(Tuple<int, int>chunkPosition)
@@ -330,8 +383,10 @@ public class CaveGenerator : MonoBehaviour
         newChunk.ChunkFloorClone = Instantiate(chunkFloor, new Vector3(chunkCenterX, chunkCenterY, 0), Quaternion.identity);
 
         newChunk.ChunkBlocks = new();
+        newChunk.Enemies = new();
 
         ChunkBlock chunkBlock;
+        EnemyOnChunk enemy;
 
         float originalStartPointX = startPointX;
 
@@ -365,6 +420,39 @@ public class CaveGenerator : MonoBehaviour
                             chunkBlock.Original = POIblock.Item2;
 
                             newChunk.ChunkBlocks.Add(chunkBlock);
+                        }
+                    }
+                    else
+                    {
+                        ResourceColliderRandomizer rcr = hitCollider.GetComponent<ResourceColliderRandomizer>();
+                        if (rcr != null)
+                        {
+                            chunkBlock = new();
+
+                            chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
+
+                            chunkBlock.Original = rcr.ResourceType;
+
+                            newChunk.ChunkBlocks.Add(chunkBlock);
+                        }
+                        else
+                        {
+                            CaveColliderRandomizer ccr = hitCollider.GetComponent<CaveColliderRandomizer>();
+                            if(ccr != null)
+                            {
+                                int roll = UnityEngine.Random.Range(0, 100);
+
+                                if(roll >= 99)
+                                {
+                                    int enemyNumber = UnityEngine.Random.Range(0, Enemies.Count);
+
+                                    enemy = new();
+                                    enemy.Original = Enemies[enemyNumber];
+                                    enemy.Position = new Vector3(startPointX, startPointY, 0);
+
+                                    newChunk.Enemies.Add(enemy);
+                                }
+                            }
                         }
                     }
                 }
@@ -406,13 +494,13 @@ public class CaveGenerator : MonoBehaviour
         {
             Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(block.Position.x, block.Position.y), 0f);
 
-            if(hitCollider != null)
+            if (hitCollider != null)
             {
-            POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
-            if (poi != null)
-            {
-                poi.BuildInChunk(chunk.ChunkPosition);
-            }
+                POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
+                if (poi != null)
+                {
+                    poi.BuildInChunk(chunk.ChunkPosition);
+                }
             }
 
             counter++;
@@ -423,6 +511,11 @@ public class CaveGenerator : MonoBehaviour
             }
 
             block.Clone = Instantiate(block.Original, block.Position, Quaternion.identity);
+        }
+
+        foreach (EnemyOnChunk enemy in chunk.Enemies)
+        {
+            enemy.Clone = Instantiate(enemy.Original, enemy.Position, Quaternion.identity);
         }
     }
 
@@ -460,6 +553,7 @@ public class CaveGenerator : MonoBehaviour
         newArea.AreaPosition = areaPosition;
         newArea.Caves = new();
         newArea.POIs = new();
+        newArea.Resources = new();
 
         for (int i = 0; i < 5; i++)
         {
@@ -474,8 +568,9 @@ public class CaveGenerator : MonoBehaviour
                 newCave.Original = caveCollider;
                 newCave.Position = position;
                 newCave.Clone = Instantiate(newCave.Original, newCave.Position, Quaternion.identity);
-                newCave.Clone.GetComponent<CaveColliderRandomizer>().GenerateColliderPoints();
-                newCave.Points = newCave.Clone.GetComponent<CaveColliderRandomizer>().Points;
+                CaveColliderRandomizer cavColldier = newCave.Clone.GetComponent<CaveColliderRandomizer>();
+                cavColldier.GenerateColliderPoints();
+                newCave.Points = cavColldier.Points;
 
                 newArea.Caves.Add(newCave);
             }
@@ -502,6 +597,31 @@ public class CaveGenerator : MonoBehaviour
                 newPOI.AffectedChunks = poiBuilder.AffectedChunks;
 
                 newArea.POIs.Add(newPOI);
+            }
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            int roll = UnityEngine.Random.Range(0, 100);
+
+            if(roll >= 50)
+            {
+                Vector3 position = new Vector3(UnityEngine.Random.Range((int)startX, (int)endX), UnityEngine.Random.Range((int)startY, (int)endY), 0);
+
+                int resNumber = UnityEngine.Random.Range(0, Resources.Count);
+
+                Resource newResource = new();
+
+                newResource.Original = resourceCollider;
+                newResource.Position = position;
+                newResource.ResourceType = Resources[resNumber];
+                newResource.Clone = Instantiate(newResource.Original, newResource.Position, Quaternion.identity);
+                ResourceColliderRandomizer resCollider = newResource.Clone.GetComponent<ResourceColliderRandomizer>();
+                resCollider.ResourceType = newResource.ResourceType;
+                resCollider.GenerateColliderPoints();
+                newResource.Points = resCollider.Points;
+
+                newArea.Resources.Add(newResource);
             }
         }
 
@@ -577,6 +697,11 @@ public class CaveGenerator : MonoBehaviour
 
             Destroy(poi.Clone);
         }
+
+        foreach (Resource res in environmentArea.Resources)
+        {
+            Destroy(res.Clone);
+        }
     }
 
     private void RegenerateEnvironmentArea(EnvironmentObject environmentArea)
@@ -600,6 +725,18 @@ public class CaveGenerator : MonoBehaviour
             poiBuilder.AffectedChunks = poi.AffectedChunks;
 
             poi.Clone = regeneratedPOI;
+        }
+
+        foreach (Resource res in environmentArea.Resources)
+        {
+            GameObject regeneratedResource = Instantiate(res.Original, res.Position, Quaternion.identity);
+            ResourceColliderRandomizer rcr = regeneratedResource.GetComponent<ResourceColliderRandomizer>();
+            rcr.ResourceType = res.ResourceType;
+            PolygonCollider2D resourceCollider = regeneratedResource.GetComponent<PolygonCollider2D>();
+            resourceCollider.points = res.Points;
+            resourceCollider.SetPath(0, res.Points);
+
+            res.Clone = regeneratedResource;
         }
     }
 }

@@ -7,6 +7,10 @@ public class LegacyCaveGenerator : MonoBehaviour
 {
     private List<ChunkObject> GeneratedChunks { get; set; } = new();
     private List<Tuple<int, int>> ShowedChunks { get; set; } = new();
+
+    private List<EnvironmentObject> GeneratedEnvironmentAreas { get; set; } = new();
+    private List<Tuple<int, int>> ActiveEnvironmentAreas { get; set; } = new();
+
     private Camera CameraMain { get; set; }
     private NavMeshGenerator NMG { get; set; }
     private List<Vector3> GenerationPoints { get; set; } = new List<Vector3>
@@ -28,11 +32,22 @@ public class LegacyCaveGenerator : MonoBehaviour
         new Vector3(-20,-10,0)  //15
     };
 
+    private List<Vector3> EnvironmentPoints { get; set; } = new List<Vector3>
+    {
+        new Vector3(50,50,0),     //1
+        new Vector3(-50,50,0),    //2
+        new Vector3(50,-50,0),   //3
+        new Vector3(-50,-50,0),    //4
+    };
+
     public GameObject commonStoneBlock;
     public GameObject chunkFloor;
     public GameObject caveCollider;
+    public GameObject resourceCollider;
 
     public List<GameObject> POIs = new();
+    public List<GameObject> Resources = new();
+    public List<GameObject> Enemies = new();
 
     // Start is called before the first frame update
     void Awake()
@@ -40,7 +55,8 @@ public class LegacyCaveGenerator : MonoBehaviour
         CameraMain = Camera.main;
         NMG = GameObject.Find("NavMesh").GetComponent<NavMeshGenerator>();
 
-        Instantiate(caveCollider, Vector3.zero, Quaternion.identity);
+        //GameObject firstCave = Instantiate(caveCollider, Vector3.zero, Quaternion.identity);
+        //firstCave.GetComponent<CaveColliderRandomizer>().GenerateColliderPoints();
 
         lastCheckCameraPosition = Tuple.Create(0, 0);
     }
@@ -92,6 +108,45 @@ public class LegacyCaveGenerator : MonoBehaviour
         if (currentCheckCameraPosition.Item1 != lastCheckCameraPosition.Item1 || currentCheckCameraPosition.Item2 != lastCheckCameraPosition.Item2)
         {
             Vector3 generationPoint;
+            Vector3 environmentPoint;
+
+            foreach (Vector3 point in EnvironmentPoints)
+            {
+                environmentPoint = CameraMain.transform.TransformPoint(point);
+
+                ceiledX = (int)Math.Ceiling(environmentPoint.x / 100);
+                ceiledY = (int)Math.Ceiling(environmentPoint.y / 100);
+
+                if (environmentPoint.x <= 0)
+                {
+                    ceiledX--;
+                }
+
+                if (environmentPoint.y <= 0)
+                {
+                    ceiledY--;
+                }
+
+                Tuple<int, int> currentEnvironmentAreaPosition = Tuple.Create(ceiledX, ceiledY);
+
+                EnvironmentObject currentArea = GeneratedEnvironmentAreas.Find(e => e.AreaPosition.Item1 == ceiledX && e.AreaPosition.Item2 == ceiledY);
+
+                if (currentArea == null)
+                {
+                    GenerateEnvironmentArea(currentEnvironmentAreaPosition);
+                }
+                else if (!ActiveEnvironmentAreas.Contains(currentEnvironmentAreaPosition))
+                {
+                    RegenerateEnvironmentArea(currentArea);
+                }
+
+                if (!ActiveEnvironmentAreas.Contains(currentEnvironmentAreaPosition))
+                {
+                    ActiveEnvironmentAreas.Add(currentEnvironmentAreaPosition);
+                }
+            }
+
+            CheckActiveAreas();
 
             foreach (Vector3 point in GenerationPoints)
             {
@@ -112,7 +167,7 @@ public class LegacyCaveGenerator : MonoBehaviour
 
                 Tuple<int, int> currentChunkPosition = Tuple.Create(ceiledX, ceiledY);
 
-                ChunkObject currentChunk = GeneratedChunks.Find(c => c.ChunkPosition.Item1 == currentChunkPosition.Item1 && c.ChunkPosition.Item2 == currentChunkPosition.Item2);
+                ChunkObject currentChunk = GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY);
 
                 if (currentChunk == null)
                 {
@@ -122,6 +177,7 @@ public class LegacyCaveGenerator : MonoBehaviour
                 else if (!ShowedChunks.Contains(currentChunkPosition))
                 {
                     RegenerateChunk(currentChunk);
+                    isNewChunkGenerated = true;
                 }
 
                 if (!ShowedChunks.Contains(currentChunkPosition))
@@ -134,10 +190,6 @@ public class LegacyCaveGenerator : MonoBehaviour
 
             if(isNewChunkGenerated == true)
             {
-                TryToGenerateCave();
-
-                TryToGeneratePOI();
-
                 StartCoroutine(RegenerateNavMesh());
             }
         }
@@ -149,128 +201,6 @@ public class LegacyCaveGenerator : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         NMG.GenerateNavMesh();
-    }
-
-    private void TryToGenerateCave()
-    {
-        float roll = UnityEngine.Random.Range(1, 100);
-        if (roll > 70)
-        {
-            roll = UnityEngine.Random.Range(1, 100);
-            int multiplier1;
-            int multiplier2;
-
-            if (roll > 50)
-            {
-                multiplier1 = 1;
-            }
-            else
-            {
-                multiplier1 = -1;
-            }
-
-            roll = UnityEngine.Random.Range(1, 100);
-
-            if (roll > 50)
-            {
-                multiplier2 = 1;
-            }
-            else
-            {
-                multiplier2 = -1;
-            }
-
-            Vector3 spawnPoint = CameraMain.transform.TransformPoint(
-                new Vector3(
-                    UnityEngine.Random.Range(20, 40) * multiplier1,
-                    UnityEngine.Random.Range(20, 40) * multiplier2,
-                    0
-                    )
-                );
-
-            int ceiledX = (int)Math.Ceiling(spawnPoint.x / 10);
-            int ceiledY = (int)Math.Ceiling(spawnPoint.y / 10);
-
-            if (spawnPoint.x <= 0)
-            {
-                ceiledX--;
-            }
-
-            if (spawnPoint.y <= 0)
-            {
-                ceiledY--;
-            }
-
-            if (GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY) == null)
-            {
-                Instantiate(caveCollider, spawnPoint, Quaternion.identity);
-            }
-        }
-    }
-
-    private void TryToGeneratePOI()
-    {
-        float roll = UnityEngine.Random.Range(1, 100);
-        if (roll > 70)
-        {
-            roll = UnityEngine.Random.Range(1, 100);
-            int multiplier1;
-            if (roll > 50)
-            {
-                multiplier1 = 1;
-            }
-            else
-            {
-                multiplier1 = -1;
-            }
-
-            int multiplier2;
-
-            roll = UnityEngine.Random.Range(1, 100);
-
-            if (roll > 50)
-            {
-                multiplier2 = 1;
-            }
-            else
-            {
-                multiplier2 = -1;
-            }
-
-            roll = UnityEngine.Random.Range(0, POIs.Count);
-
-            Vector3 spawnPosition = CameraMain.transform.TransformPoint
-                (
-                new Vector3
-                    (
-                        UnityEngine.Random.Range(30, 60) * multiplier1,
-                        UnityEngine.Random.Range(30, 60) * multiplier2,
-                        0
-                    )
-                );
-
-            spawnPosition.x = Mathf.Round(spawnPosition.x);
-            spawnPosition.y = Mathf.Round(spawnPosition.y);
-            spawnPosition.z = 0;
-
-            int ceiledX = (int)Math.Ceiling(spawnPosition.x / 10);
-            int ceiledY = (int)Math.Ceiling(spawnPosition.y / 10);
-
-            if (spawnPosition.x <= 0)
-            {
-                ceiledX--;
-            }
-
-            if (spawnPosition.y <= 0)
-            {
-                ceiledY--;
-            }
-
-            if(GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY) == null)
-            {
-                Instantiate(POIs[(int)roll], spawnPosition, Quaternion.identity);
-            }
-        }
     }
 
     private void CheckShowedChunks()
@@ -327,10 +257,32 @@ public class LegacyCaveGenerator : MonoBehaviour
 
     IEnumerator HideChunk(ChunkObject chunk)
     {
-        if(chunk.ChunkFloorClone != null)
+        if (chunk.ChunkFloorClone != null)
         {
             Destroy(chunk.ChunkFloorClone);
         }
+
+        List<ChunkBlock> blocksToDelete = new();
+        List<EnemyOnChunk> enemiesToDelete = new();
+
+        foreach (EnemyOnChunk enemy in chunk.Enemies)
+        {
+            if(enemy.Clone != null)
+            {
+                Destroy(enemy.Clone);
+            }
+            else
+            {
+                enemiesToDelete.Add(enemy);
+            }
+        }
+
+        //foreach (EnemyOnChunk enemy in enemiesToDelete)
+        //{
+        //    chunk.Enemies.Remove(enemy);
+        //}
+
+        enemiesToDelete.Clear();
 
         int counter = 0;
         foreach (ChunkBlock block in chunk.ChunkBlocks)
@@ -342,8 +294,22 @@ public class LegacyCaveGenerator : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
             }
 
-            Destroy(block.Clone);
+            if (block.Clone != null)
+            {
+                Destroy(block.Clone);
+            }
+            else
+            {
+                blocksToDelete.Add(block);
+            }
         }
+
+        //foreach (ChunkBlock block in blocksToDelete)
+        //{
+        //    chunk.ChunkBlocks.Remove(block);
+        //}
+
+        blocksToDelete.Clear();
 
         yield return new WaitForSeconds(2f);
 
@@ -357,10 +323,23 @@ public class LegacyCaveGenerator : MonoBehaviour
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
-
-                Destroy(block.Clone);
+                if (block.Clone != null)
+                {
+                    Destroy(block.Clone);
+                }
+                else
+                {
+                    blocksToDelete.Add(block);
+                }
             }
         }
+
+        //foreach (ChunkBlock block in blocksToDelete)
+        //{
+        //    chunk.ChunkBlocks.Remove(block);
+        //}
+
+        blocksToDelete.Clear();
     }
 
     private void GenerateChunk(Tuple<int, int>chunkPosition)
@@ -404,8 +383,10 @@ public class LegacyCaveGenerator : MonoBehaviour
         newChunk.ChunkFloorClone = Instantiate(chunkFloor, new Vector3(chunkCenterX, chunkCenterY, 0), Quaternion.identity);
 
         newChunk.ChunkBlocks = new();
+        newChunk.Enemies = new();
 
         ChunkBlock chunkBlock;
+        EnemyOnChunk enemy;
 
         float originalStartPointX = startPointX;
 
@@ -439,6 +420,39 @@ public class LegacyCaveGenerator : MonoBehaviour
                             chunkBlock.Original = POIblock.Item2;
 
                             newChunk.ChunkBlocks.Add(chunkBlock);
+                        }
+                    }
+                    else
+                    {
+                        ResourceColliderRandomizer rcr = hitCollider.GetComponent<ResourceColliderRandomizer>();
+                        if (rcr != null)
+                        {
+                            chunkBlock = new();
+
+                            chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
+
+                            chunkBlock.Original = rcr.ResourceType;
+
+                            newChunk.ChunkBlocks.Add(chunkBlock);
+                        }
+                        else
+                        {
+                            CaveColliderRandomizer ccr = hitCollider.GetComponent<CaveColliderRandomizer>();
+                            if(ccr != null)
+                            {
+                                int roll = UnityEngine.Random.Range(0, 100);
+
+                                if(roll >= 99)
+                                {
+                                    int enemyNumber = UnityEngine.Random.Range(0, Enemies.Count);
+
+                                    enemy = new();
+                                    enemy.Original = Enemies[enemyNumber];
+                                    enemy.Position = new Vector3(startPointX, startPointY, 0);
+
+                                    newChunk.Enemies.Add(enemy);
+                                }
+                            }
                         }
                     }
                 }
@@ -480,13 +494,13 @@ public class LegacyCaveGenerator : MonoBehaviour
         {
             Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(block.Position.x, block.Position.y), 0f);
 
-            if(hitCollider != null)
+            if (hitCollider != null)
             {
-            POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
-            if (poi != null)
-            {
-                poi.BuildInChunk(chunk.ChunkPosition);
-            }
+                POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
+                if (poi != null)
+                {
+                    poi.BuildInChunk(chunk.ChunkPosition);
+                }
             }
 
             counter++;
@@ -497,6 +511,232 @@ public class LegacyCaveGenerator : MonoBehaviour
             }
 
             block.Clone = Instantiate(block.Original, block.Position, Quaternion.identity);
+        }
+
+        foreach (EnemyOnChunk enemy in chunk.Enemies)
+        {
+            enemy.Clone = Instantiate(enemy.Original, enemy.Position, Quaternion.identity);
+        }
+    }
+
+    private void GenerateEnvironmentArea(Tuple<int, int> areaPosition)
+    {
+        float startX = areaPosition.Item1 * 100; 
+        float startY = areaPosition.Item2 * 100;
+
+        float endX;
+        float endY;
+
+        if(startX < 0)
+        {
+            startX += 10;
+            endX = startX + 80;
+        }
+        else
+        {
+            startX -= 10;
+            endX = startX - 80;
+        }
+
+        if(startY < 0)
+        {
+            startY += 10;
+            endY = startY + 80;
+        }
+        else
+        {
+            startY -= 10;
+            endY = startY - 80;
+        }
+
+        EnvironmentObject newArea = new();
+        newArea.AreaPosition = areaPosition;
+        newArea.Caves = new();
+        newArea.POIs = new();
+        newArea.Resources = new();
+
+        for (int i = 0; i < 5; i++)
+        {
+            int roll = UnityEngine.Random.Range(0, 100);
+
+            if (roll >= 50)
+            {
+                Vector3 position = new Vector3(UnityEngine.Random.Range((int)startX, (int)endX), UnityEngine.Random.Range((int)startY, (int)endY), 0);
+
+                Cave newCave = new();
+
+                newCave.Original = caveCollider;
+                newCave.Position = position;
+                newCave.Clone = Instantiate(newCave.Original, newCave.Position, Quaternion.identity);
+                CaveColliderRandomizer cavColldier = newCave.Clone.GetComponent<CaveColliderRandomizer>();
+                cavColldier.GenerateColliderPoints();
+                newCave.Points = cavColldier.Points;
+
+                newArea.Caves.Add(newCave);
+            }
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            int roll = UnityEngine.Random.Range(0, 100);
+
+            if(roll >= 70)
+            {
+                Vector3 position = new Vector3(UnityEngine.Random.Range((int)startX, (int)endX), UnityEngine.Random.Range((int)startY, (int)endY), 0);
+
+                int POInumber = UnityEngine.Random.Range(0, POIs.Count);
+
+                POI newPOI = new();
+
+                newPOI.Original = POIs[POInumber];
+                newPOI.Position = position;
+                newPOI.Clone = Instantiate(newPOI.Original, newPOI.Position, Quaternion.identity);
+                POIBuilder poiBuilder = newPOI.Clone.GetComponent<POIBuilder>();
+                poiBuilder.DetermineBlocks();
+                newPOI.Blocks = poiBuilder.Blocks;
+                newPOI.AffectedChunks = poiBuilder.AffectedChunks;
+
+                newArea.POIs.Add(newPOI);
+            }
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            int roll = UnityEngine.Random.Range(0, 100);
+
+            if(roll >= 50)
+            {
+                Vector3 position = new Vector3(UnityEngine.Random.Range((int)startX, (int)endX), UnityEngine.Random.Range((int)startY, (int)endY), 0);
+
+                int resNumber = UnityEngine.Random.Range(0, Resources.Count);
+
+                Resource newResource = new();
+
+                newResource.Original = resourceCollider;
+                newResource.Position = position;
+                newResource.ResourceType = Resources[resNumber];
+                newResource.Clone = Instantiate(newResource.Original, newResource.Position, Quaternion.identity);
+                ResourceColliderRandomizer resCollider = newResource.Clone.GetComponent<ResourceColliderRandomizer>();
+                resCollider.ResourceType = newResource.ResourceType;
+                resCollider.GenerateColliderPoints();
+                newResource.Points = resCollider.Points;
+
+                newArea.Resources.Add(newResource);
+            }
+        }
+
+        GeneratedEnvironmentAreas.Add(newArea);
+    }
+
+    private void CheckActiveAreas()
+    {
+        bool isInside;
+
+        List<Tuple<int, int>> ActiveAreasToRemove = new();
+
+        foreach (Tuple<int, int> activeArea in ActiveEnvironmentAreas)
+        {
+            isInside = false;
+            foreach (Vector3 point in EnvironmentPoints)
+            {
+                Vector3 worldPoint = CameraMain.transform.TransformPoint(point);
+
+                int ceiledX = (int)Math.Ceiling(worldPoint.x / 100);
+                int ceiledY = (int)Math.Ceiling(worldPoint.y / 100);
+
+                if (worldPoint.x <= 0)
+                {
+                    ceiledX--;
+                }
+
+                if (worldPoint.y <= 0)
+                {
+                    ceiledY--;
+                }
+
+                if (activeArea.Item1 == ceiledX && activeArea.Item2 == ceiledY)
+                {
+                    isInside = true;
+                    break;
+                }
+            }
+
+            if (isInside == false)
+            {
+                if (GeneratedEnvironmentAreas.Find(a => a.AreaPosition.Item1 == activeArea.Item1 && a.AreaPosition.Item1 == activeArea.Item1) != null)
+                {
+                    EnvironmentObject environmentArea = GeneratedEnvironmentAreas.Find(a => a.AreaPosition.Item1 == activeArea.Item1 && a.AreaPosition.Item2 == activeArea.Item2);
+
+                    HideEnvironmentArea(environmentArea);
+
+                    ActiveAreasToRemove.Add(activeArea);
+                }
+            }
+        }
+
+        foreach (Tuple<int, int> activeArea in ActiveAreasToRemove)
+        {
+            ActiveEnvironmentAreas.Remove(activeArea);
+        }
+    }
+
+    private void HideEnvironmentArea(EnvironmentObject environmentArea)
+    {
+        foreach (Cave cave in environmentArea.Caves)
+        {
+            Destroy(cave.Clone);
+        }
+
+        foreach (POI poi in environmentArea.POIs)
+        {
+            if (poi.Clone != null)
+            {
+                poi.Blocks = poi.Clone.GetComponent<POIBuilder>().Blocks;
+                poi.AffectedChunks = poi.Clone.GetComponent<POIBuilder>().AffectedChunks;
+            }
+
+            Destroy(poi.Clone);
+        }
+
+        foreach (Resource res in environmentArea.Resources)
+        {
+            Destroy(res.Clone);
+        }
+    }
+
+    private void RegenerateEnvironmentArea(EnvironmentObject environmentArea)
+    {
+        foreach (Cave cave in environmentArea.Caves)
+        {
+            GameObject regeneratedCave = Instantiate(cave.Original, cave.Position, Quaternion.identity);
+            PolygonCollider2D caveCollider = regeneratedCave.GetComponent<PolygonCollider2D>();
+            caveCollider.points = cave.Points;
+            caveCollider.SetPath(0, cave.Points);
+
+            cave.Clone = regeneratedCave;
+        }
+
+        foreach (POI poi in environmentArea.POIs)
+        {
+            GameObject regeneratedPOI = Instantiate(poi.Original, poi.Position, Quaternion.identity);
+            POIBuilder poiBuilder = regeneratedPOI.GetComponent<POIBuilder>();
+            poiBuilder.DestroyBlueprints();
+            poiBuilder.Blocks = poi.Blocks;
+            poiBuilder.AffectedChunks = poi.AffectedChunks;
+
+            poi.Clone = regeneratedPOI;
+        }
+
+        foreach (Resource res in environmentArea.Resources)
+        {
+            GameObject regeneratedResource = Instantiate(res.Original, res.Position, Quaternion.identity);
+            ResourceColliderRandomizer rcr = regeneratedResource.GetComponent<ResourceColliderRandomizer>();
+            rcr.ResourceType = res.ResourceType;
+            PolygonCollider2D resourceCollider = regeneratedResource.GetComponent<PolygonCollider2D>();
+            resourceCollider.points = res.Points;
+            resourceCollider.SetPath(0, res.Points);
+
+            res.Clone = regeneratedResource;
         }
     }
 }

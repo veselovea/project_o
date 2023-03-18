@@ -313,7 +313,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.06666667
   m_BuildHeightMesh: 0
   m_HideEditorLogs: 0
   m_NavMeshData: {fileID: 0}
@@ -451,6 +451,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1517621294}
   - component: {fileID: 1517621296}
+  - component: {fileID: 1517621297}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -488,8 +489,37 @@ MonoBehaviour:
   commonStoneBlock: {fileID: 7970271923513250684, guid: 563514ba494ca5342a03487bc5413e54, type: 3}
   chunkFloor: {fileID: 688300981063731494, guid: 7aae68f072378e745960d1c9db1b0a3c, type: 3}
   caveCollider: {fileID: 5469097460733451164, guid: 81fb26e4c55341a4cb16dbc1e2cc9b8e, type: 3}
+  resourceCollider: {fileID: 7001068714482276022, guid: df319e2a9c2111946b32cb7d1781b376, type: 3}
   POIs:
   - {fileID: 5077602992299132532, guid: 2f552f4946ac354438312417372c2d1c, type: 3}
+  Resources:
+  - {fileID: 7970271923513250684, guid: a1198a3fc89a5124b9ac72eb9add342b, type: 3}
+  - {fileID: 7970271923513250684, guid: 48a2ce05b403cc64bbb184f569e0b12d, type: 3}
+  - {fileID: 7970271923513250684, guid: 33e3601b9f711b94abe304c97fc88269, type: 3}
+  Enemies:
+  - {fileID: 7259820312364051845, guid: 3ecc1cec1df476b4089f3f92ea9b0ffe, type: 3}
+--- !u!114 &1517621297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517621292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f345e46306783104a92d2e2aa0c5393f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Gameobjects:
+  - {fileID: 7970271923513250684, guid: 563514ba494ca5342a03487bc5413e54, type: 3}
+  - {fileID: 688300981063731494, guid: 7aae68f072378e745960d1c9db1b0a3c, type: 3}
+  - {fileID: 5469097460733451164, guid: 81fb26e4c55341a4cb16dbc1e2cc9b8e, type: 3}
+  - {fileID: 7001068714482276022, guid: df319e2a9c2111946b32cb7d1781b376, type: 3}
+  - {fileID: 7970271923513250684, guid: 33e3601b9f711b94abe304c97fc88269, type: 3}
+  - {fileID: 7970271923513250684, guid: 48a2ce05b403cc64bbb184f569e0b12d, type: 3}
+  - {fileID: 5077602992299132532, guid: 2f552f4946ac354438312417372c2d1c, type: 3}
+  - {fileID: 4333773126930873065, guid: 5f165fdfb0fad4a4f8a6f4fbc75b9bd6, type: 3}
+  - {fileID: 7970271923513250684, guid: a1198a3fc89a5124b9ac72eb9add342b, type: 3}
 --- !u!1 &1653568547
 GameObject:
   m_ObjectHideFlags: 0

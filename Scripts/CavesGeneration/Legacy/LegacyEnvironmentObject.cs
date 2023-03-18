@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnvironmentObject
+public class LegacyEnvironmentObject
 {
     public List<Cave> Caves { get; set; }
     public List<POI> POIs { get; set; }
@@ -11,7 +11,7 @@ public class EnvironmentObject
     public Tuple<int, int> AreaPosition { get; set; }
 }
 
-public class Cave
+public class LegacyCave
 {
     public GameObject Original { get; set; }
     public GameObject Clone { get; set; }
@@ -19,7 +19,7 @@ public class Cave
     public Vector3 Position { get; set; }
 }
 
-public class POI
+public class LegacyPOI
 {
     public GameObject Original { get; set; }
     public GameObject Clone { get; set; }
@@ -28,7 +28,7 @@ public class POI
     public Vector3 Position { get; set; }
 }
 
-public class Resource
+public class LegacyResource
 {
     public GameObject Original { get; set; }
     public GameObject Clone { get; set; }

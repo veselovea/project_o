@@ -9,10 +9,17 @@ public class EnemySampleLogic : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(ActivateAgent());
+        //Agent.SetDestination(new Vector3(0, 0, 0));
+    }
+
+    IEnumerator ActivateAgent()
+    {
+        yield return new WaitForSeconds(1f);
         Agent = GetComponent<NavMeshAgent>();
+        Agent.enabled = true;
         Agent.updateUpAxis = false;
         Agent.updateRotation = false;
-        Agent.SetDestination(new Vector3(0, 0, 0));
     }
 
     // Update is called once per frame
