@@ -6,7 +6,6 @@ public class PlayerScript : MonoBehaviour
 {
     public GameObject _playerPrefab;
     public bool _isRemotePlayer = false;
-    public Action<string> PlayerMoveEventHandler;
 
     private Camera _cameraMain;
     private PlayerUI _playerUI;
@@ -128,7 +127,5 @@ public class PlayerScript : MonoBehaviour
             Time.deltaTime * 5);
         cameraPos.z = _cameraMain.transform.position.z;
         _cameraMain.transform.position = cameraPos;
-
-        PlayerMoveEventHandler?.Invoke(_playerPrefab.transform.position.ToString());
     }
 }

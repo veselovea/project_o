@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using System.Text;
 
 public interface INetworkModule
 {
@@ -11,170 +11,87 @@ public interface INetworkModule
     public Task Disconnect();
 }
 
-public class NetworkModule : MonoBehaviour, INetworkModule
+public class NetworkModule : MonoBehaviour
 {
-    private ClientSideUnity _client;
-    private NetworkHandlerRemotePlayer _remotePlayer;
-    private NetworkHandlerLocalPlayer _localPlayer;
-
-    private Action _executeInMainThread;
-    private bool _isSendingPlayerPostition;
-    private bool _canUpdatePlayerInfo;
-
-    private BotManager _botManager;
-
     public GameObject _playerPrefub;
     public string _playerName;
 
-    async void Awake()
+    private ClientSideUnity _client;
+    private NetworkHandlerLocalPlayer _localPlayer;
+    private NetworkHandlerRemotePlayer _remotePlayer;
+    private bool _canSendPlayerPosition;
+
+    void Awake()
     {
-        _playerName = $"player #{new System.Random().Next(1000)}";
-        _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, ExecuteInMainThread);
-        _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, ExecuteInMainThread);
-        //_client = new ClientSideUnity("90.188.226.136", 4000, _localPlayer, _remotePlayer);
-        _client = new ClientSideUnity("192.168.0.2", 4000, _localPlayer, _remotePlayer);
-        _client.Logger.LogEvent += Debug.Log;
-        _client.Logger.Level = LogLevel.Advanced;
-        _client.Start();
-        _canUpdatePlayerInfo = true;
-        if (_client.IsStarted)
+        _playerName = $"Player #{DateTime.Now.Second}";
+        _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName);
+        _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub);
+        InitClient();
+        while (!_localPlayer.PlayerInGame)
         {
-            _canUpdatePlayerInfo = false;
-            await UpdatePlayerInfo();
-            StartCoroutine(UpdateInfoTimeoutCoroutine());
+            if (_localPlayer.CanConnectToGame)
+                _localPlayer.Connect(null);
+            else
+            {
+                Thread.Sleep(2000);
+                if (!_localPlayer.CanConnectToGame)
+                    _localPlayer.UpdatePlayerInfo();
+            }
+            Thread.Sleep(2000);
         }
-        _isSendingPlayerPostition = false;
-        _botManager = new BotManager(2, 5102);
-        Task.Run(PostAwake);
+        _canSendPlayerPosition = true;
     }
 
-    async void OnDestroy()
+    void OnDestroy()
     {
-        if (_botManager.IsStarted)
-            _botManager.StopSession();
         if (_localPlayer.PlayerInGame)
-            await Disconnect();
+            _localPlayer.Disconnect();
         _client.Stop();
     }
 
-    void Update()
+    async void Update()
     {
-        _executeInMainThread?.Invoke();
-        _executeInMainThread = null;
-    }
-
-    private Task PostAwake()
-    {
-        while (_client.IsStarted)
+        if (_canSendPlayerPosition && _localPlayer.PlayerInGame)
         {
-            if (_executeInMainThread is null)
-            {
-                _executeInMainThread += async () =>
-                {
-                    if (_localPlayer.PlayerInGame && !_isSendingPlayerPostition)
-                    {
-                        _isSendingPlayerPostition = true;
-                        StartCoroutine(SendPlayerPostitionTimeoutCoroutine(2f));
-                        await SendPlayerPosition();
-                    }
-                    else if (!_localPlayer.PlayerInGame && _localPlayer.CanConnectToGame && _canUpdatePlayerInfo)
-                    {
-                        await ConnectToGame();
-                        _canUpdatePlayerInfo = false;
-                        StartCoroutine(UpdateInfoTimeoutCoroutine());
-                    }
-                    else if (!_localPlayer.CanConnectToGame && _canUpdatePlayerInfo)
-                    {
-                        _canUpdatePlayerInfo = false;
-                        StartCoroutine(UpdateInfoTimeoutCoroutine());
-                        await UpdatePlayerInfo();
-                    }
-                };
-            }
-            if (!_botManager.IsStarted && _localPlayer.PlayerInGame)
-                _botManager.StartSession();
+            await _localPlayer.SendPlayerPosition();
+            StartCoroutine(SendPlayerPositionTimeout());
         }
-        return Task.CompletedTask;
+        if (!_remotePlayer.IsTaskExecuting && _remotePlayer.CanExecuteTasks)
+            ExecuteTasks(_remotePlayer);
+        if (!_localPlayer.IsTaskExecuting && _localPlayer.CanExecuteTasks)
+            ExecuteTasks(_localPlayer);
     }
 
-    private void ExecuteInMainThread(Action action)
+    private void InitClient()
     {
-        _executeInMainThread += action;
+        //_client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
+        _client = new ClientSideUnity("192.168.0.2", 4000, 5126, _localPlayer, _remotePlayer);
+        _client.Logger.Level = LogLevel.Simple;
+        _client.Logger.LogEvent += Debug.Log;
+        _client.Start();
+        _localPlayer.Client = _client;
+        _localPlayer.UpdatePlayerInfo();
     }
 
-    private async Task UpdatePlayerInfo()
+    private void ExecuteTasks(ExecuteTasksInMainThread executor)
     {
-        GameNetworkPacket packet = new GameNetworkPacket
-        {
-            Player = _localPlayer.PlayerInfo,
-            Command = GeneralCommand.PlayerInfo,
-            Type = NetworkObjectType.None,
-            Data = null
-        };
-        string json = Serializer.GetJson(packet);
-        byte[] data = Encoding.ASCII.GetBytes(json);
-        await _client.SendAsync(data);
-    }
-
-    private async Task SendPlayerPosition()
-    {
-        PlayerTransform transform = _localPlayer.GetPlayerTransform();
-        GameNetworkObject networkObject = new GameNetworkObject()
-        {
-            Command = GameCommand.Move,
-            CommandArgument = Serializer.GetJson(transform)
-        };
-        GameNetworkPacket packet = new GameNetworkPacket()
-        {
-            Player = _localPlayer.PlayerInfo,
-            Command = GeneralCommand.GameCommand,
-            Type = NetworkObjectType.GameNetworkObject,
-            Data = Serializer.GetJson(networkObject)
-        };
-        string json = Serializer.GetJson(packet);
-        byte[] data = Encoding.ASCII.GetBytes(json);
-        await _client.SendAsync(data);
-    }
-
-    private IEnumerator SendPlayerPostitionTimeoutCoroutine(float time)
-    {
-        yield return new WaitForSecondsRealtime(time);
-        _isSendingPlayerPostition = false;
-    }
-
-    private IEnumerator UpdateInfoTimeoutCoroutine()
-    {
-        yield return new WaitForSecondsRealtime(5);
-        _canUpdatePlayerInfo = true;
-    }
-
-    public Task ConnectToGame() => ConnectToGame(null);
-    public async Task ConnectToGame(string code)
-    {
-        if (_localPlayer.PlayerInfo.IP is null)
+        if (executor.Tasks.Count == 0
+            || !executor.CanExecuteTasks)
             return;
-        GameNetworkPacket packet = new GameNetworkPacket()
+        executor.IsTaskExecuting = true;
+        foreach (var item in executor.Tasks)
         {
-            Player = _localPlayer.PlayerInfo,
-            Command = GeneralCommand.Connect,
-            Type = NetworkObjectType.None,
-            Data = code
-        };
-        string json = Serializer.GetJson(packet);
-        byte[] data = Encoding.ASCII.GetBytes(json);
-        await _client.SendAsync(data);
+            if (!item.IsExecuted)
+                item.Execute();
+            item.IsExecuted = true;
+        }
+        executor.IsTaskExecuting = false;
     }
-    public async Task Disconnect()
+
+    private IEnumerator SendPlayerPositionTimeout()
     {
-        GameNetworkPacket packet = new GameNetworkPacket()
-        {
-            Player = _localPlayer.PlayerInfo,
-            Command = GeneralCommand.Disconnect,
-            Type = NetworkObjectType.None,
-            Data = null
-        };
-        string json = Serializer.GetJson(packet);
-        byte[] data = Encoding.ASCII.GetBytes(json);
-        await _client.SendAsync(data);
+        _canSendPlayerPosition = false;
+        yield return new WaitForSecondsRealtime(0.05f);
+        _canSendPlayerPosition = true;
     }
 }

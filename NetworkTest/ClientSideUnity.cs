@@ -6,14 +6,6 @@ public class ClientSideUnity : UDPClientSide
     private NetworkHandlerLocalPlayer _localPlayer;
     private NetworkHandlerRemotePlayer _remotePlayer;
 
-    public ClientSideUnity(string address, ushort port,
-        NetworkHandlerLocalPlayer localPlayer, NetworkHandlerRemotePlayer remotePlayer)
-        : base(address, port, 5126)
-    {
-        _localPlayer = localPlayer;
-        _remotePlayer = remotePlayer;
-    }
-
     public ClientSideUnity(string address, ushort port, ushort localPort,
         NetworkHandlerLocalPlayer localPlayer, NetworkHandlerRemotePlayer remotePlayer)
         : base(address, port, localPort)
@@ -49,7 +41,7 @@ public class ClientSideUnity : UDPClientSide
                             _remotePlayer.Dead(packet.Player);
                             break;
                         case GameCommand.Move:
-                            _remotePlayer.Move(packet.Player, null);
+                            _remotePlayer.Move(packet.Player, data.CommandArgument);
                             break;
                         case GameCommand.Attack:
                             break;
@@ -61,7 +53,7 @@ public class ClientSideUnity : UDPClientSide
                     if (packet.Type == NetworkObjectType.ConnectionToPoolResult)
                     {
                         _localPlayer.PlayerInfo = packet.Player;
-                        _localPlayer.Connect();
+                        _localPlayer.Connected();
                     }
                     else
                         _remotePlayer.Born(packet.Player);

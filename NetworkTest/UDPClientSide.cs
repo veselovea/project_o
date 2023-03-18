@@ -19,7 +19,7 @@ public class UDPClientSide
     public UDPClientSide(string address, ushort remotePort, ushort localPort)
     {
         if (localPort < 1024)
-            throw new ArgumentOutOfRangeException("Parameter localPort should be less than 1024");
+            throw new ArgumentOutOfRangeException("Parameter localPort should be more than 1024");
         _client = new UdpClient(localPort);
         _client.Client.ReceiveBufferSize = BufferSize;
         _client.Client.SendBufferSize = BufferSize;

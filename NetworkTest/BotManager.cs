@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,19 +18,26 @@ public class BotManager
         _bots = new List<Bot>(botsCount);
         _botHandler = new Thread(HandleBots);
         for (int i = 0; i < botsCount; i++)
-            _bots.Add(new Bot($"Bot #{i}", (ushort)(startPort + i)));
+        {
+            Bot bot = new Bot($"Bot #{i}", (ushort)(startPort + i));
+            bot.LogEvent += Console.WriteLine;
+            _bots.Add(bot);
+        }
     }
 
     public bool IsStarted => _isStarted;
 
-    public async void StartSession()
+    public void StartSession(string address)
     {
         if (_isStarted)
             return;
         _isStarted = true;
         _stopMarker = false;
         foreach (var bot in _bots)
-            await bot.CreateBot();
+        {
+            bot.CreateBot(address);
+            Thread.Sleep(200);
+        }
         _botHandler.Start();
     }
 
@@ -46,23 +55,29 @@ public class BotManager
         {
             foreach (var bot in _bots)
             {
-                await bot.SendBotPostiton();
+                if (bot.IsCreated)
+                    await bot.SendBotPostiton();
                 if (_stopMarker)
                     break;
             }
+            Thread.Sleep(50);
         }
     }
 }
 
-public class Bot : UDPClientSide
+public class Bot
 {
+    private UdpClient _bot;
+
     private Vector3 _botPosition;
     private PlayerInfo _botInfo;
+    private bool _isCreated = false;
 
     private System.Random _rnd = new System.Random();
 
-    public Bot(string name, ushort port) : base("192.168.0.2", 4000, port)
+    public Bot(string name, ushort port)
     {
+        _bot = new UdpClient(port);
         _botPosition = Vector3.zero;
         _botInfo = new PlayerInfo()
         {
@@ -70,9 +85,13 @@ public class Bot : UDPClientSide
         };
     }
 
-    public async Task CreateBot()
+    public bool IsCreated => _isCreated;
+    public Action<string> LogEvent { get; set; }
+
+    public async void CreateBot(string address)
     {
-        GameNetworkPacket packet = new GameNetworkPacket()
+        _bot.Connect(address, 4000);
+        var packet = new GameNetworkPacket()
         {
             Player = _botInfo,
             Command = GeneralCommand.PlayerInfo,
@@ -81,19 +100,54 @@ public class Bot : UDPClientSide
         };
         string json = Serializer.GetJson(packet);
         byte[] buffer = Encoding.ASCII.GetBytes(json);
-        await base.SendAsync(buffer);
+        await _bot.SendAsync(buffer, buffer.Length);
+        LogEvent?.Invoke($"[<<] {_botInfo.Name} requested player info (ip)");
+
+        UdpReceiveResult receive = await _bot.ReceiveAsync();
+        buffer = receive.Buffer;
+        json = Encoding.ASCII.GetString(buffer);
+        var comingPacket = Serializer.GetObject<GameNetworkPacket>(json);
+        _botInfo = comingPacket.Player;
+        LogEvent?.Invoke($"[>>] {_botInfo.Name} result: {_botInfo.IP}");
+
+        packet.Player = comingPacket.Player;
         packet.Command = GeneralCommand.Connect;
         json = Serializer.GetJson(packet);
         buffer = Encoding.ASCII.GetBytes(json);
-        await base.SendAsync(buffer);
+        await _bot.SendAsync(buffer, buffer.Length);
+        LogEvent?.Invoke($"[<<] {_botInfo.Name} request connect to game");
+
+        receive = await _bot.ReceiveAsync();
+        buffer = receive.Buffer;
+        json = Encoding.ASCII.GetString(buffer);
+        comingPacket = Serializer.GetObject<GameNetworkPacket>(json);
+        var connectionResult = Serializer.GetObject<ConnectionPoolResult>(comingPacket.Data);
+        _botInfo.GameCode = connectionResult.GameCode;
+        LogEvent?.Invoke($"[>>] {_botInfo.Name} result: {_botInfo.GameCode}");
+
+        _isCreated = true;
     }
 
-    public void DestroyBot() =>
-        base.Stop();
+    public void DestroyBot()
+    {
+        GameNetworkPacket packet = new GameNetworkPacket()
+        {
+            Player = _botInfo,
+            Command = GeneralCommand.Disconnect,
+            Type = NetworkObjectType.None,
+            Data = null
+        };
+        string json = Serializer.GetJson(packet);
+        byte[] buffer = Encoding.ASCII.GetBytes(json);
+        _bot.SendAsync(buffer, buffer.Length);
+        _bot.Close();
+        _bot.Dispose();
+        _bot = null;
+    }
 
     public async Task SendBotPostiton()
     {
-        await BotMove();
+        BotMove();
         PlayerTransform transform = new PlayerTransform()
         {
             PositionX = _botPosition.x,
@@ -117,14 +171,14 @@ public class Bot : UDPClientSide
         };
         string json = Serializer.GetJson(packet);
         byte[] buffer = Encoding.ASCII.GetBytes(json);
-        await base.SendAsync(buffer);
+        await _bot.SendAsync(buffer, buffer.Length);
+        LogEvent?.Invoke($"[<<] {_botInfo.Name} sent his position");
     }
 
-    private Task BotMove()
-    {   
-        float x = _rnd.Next(-2, 2);
-        float y = _rnd.Next(-2, 2);
-        _botPosition += new Vector3(x, y);
-        return Task.CompletedTask;
+    private void BotMove()
+    {
+        float x = _rnd.Next(-4, 4) / 10f;
+        float y = _rnd.Next(-4, 4) / 10f;
+        _botPosition += new Vector3(x, y, 0);
     }
 }

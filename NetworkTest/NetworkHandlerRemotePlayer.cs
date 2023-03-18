@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class NetworkHandlerRemotePlayer
+public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
 {
     private GameObject _playerPrefub;
-    private Action<Action> _executeInMainThread;
     private List<GameObject> _remotePlayers;
 
-    public NetworkHandlerRemotePlayer(GameObject playerPrefub, Action<Action> executeInMainThread)
+    public NetworkHandlerRemotePlayer(GameObject playerPrefub)
     {
         _playerPrefub = playerPrefub;
-        _executeInMainThread = executeInMainThread;
         _remotePlayers = new List<GameObject>(8);
     }
 
@@ -19,7 +16,8 @@ public class NetworkHandlerRemotePlayer
 
     public void Born(PlayerInfo playerInfo)
     {
-        _executeInMainThread?.Invoke(() =>
+        ExecutableAction action = new ExecutableAction();
+        action.Execute = () =>
         {
             if (_remotePlayers.Find(x => x.name == playerInfo.Name) is not null)
                 return;
@@ -27,30 +25,36 @@ public class NetworkHandlerRemotePlayer
             player.GetComponent<PlayerScript>()._isRemotePlayer = true;
             player.name = playerInfo.Name;
             _remotePlayers.Add(player);
-        });
+        };
+        base.AddNewTask(action);
     }
 
     public void Dead(PlayerInfo playerInfo)
     {
-        _executeInMainThread?.Invoke(() =>
+        ExecutableAction action = new ExecutableAction();
+        action.Execute = () =>
         {
             GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
+            if (player is null)
+                return;
             GameObject.Destroy(player);
             _remotePlayers.Remove(player);
-        });
+        };
+        base.AddNewTask(action);
     }
 
     public void Move(PlayerInfo playerInfo, string pos)
     {
-        PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
-        _executeInMainThread?.Invoke(() =>
+        ExecutableAction action = new ExecutableAction();
+        action.Execute = () =>
         {
-            Debug.Log(pos);
+            PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
             Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
             GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
             player.transform.position = position;
             player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
-        });
+        };
+        base.AddNewTask(action);
     }
 }
 
