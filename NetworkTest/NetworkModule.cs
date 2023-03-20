@@ -64,8 +64,8 @@ public class NetworkModule : MonoBehaviour
 
     private void InitClient()
     {
-        //_client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
-        _client = new ClientSideUnity("192.168.0.2", 4000, 5126, _localPlayer, _remotePlayer);
+        _client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
+        //_client = new ClientSideUnity("192.168.0.2", 4000, 5126, _localPlayer, _remotePlayer);
         _client.Logger.Level = LogLevel.Simple;
         _client.Logger.LogEvent += Debug.Log;
         _client.Start();
