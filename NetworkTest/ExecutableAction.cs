@@ -32,5 +32,7 @@ public class ExecuteTasksInMainThread
     {
         TaskQueue.RemoveAll(item => item.IsExecuted);
         TaskQueue.Add(action);
+        if (Tasks.Count == 0)
+            Tasks.AddRange(TaskQueue);
     }
 }
