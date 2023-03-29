@@ -39,4 +39,17 @@ public abstract class Weapons : MonoBehaviour
         yield return new WaitForSeconds(Speed);
         IsCanAttack = true;
     }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
+        {
+            collider.GetComponent<Enemy>().TakeDamage(Damage);
+        }
+
+        if (collider.gameObject.tag == "Player" && IsCanAttack == false)
+        {
+            collider.GetComponent<Creatures>().TakeDamage(Damage);
+        }
+    }
 }

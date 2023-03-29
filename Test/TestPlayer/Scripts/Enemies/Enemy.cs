@@ -11,6 +11,8 @@ public class Enemy : MonoBehaviour
     private Animator Anim;
     private Weapons weapon;
 
+    public Vector3 startPosition;
+
     //Specifications
     public int health;
     public float speed;
@@ -26,6 +28,11 @@ public class Enemy : MonoBehaviour
         weapon = GetComponentInChildren<Weapons>();
     }
 
+    private void Start()
+    {
+        startPosition = this.transform.position;
+    }
+
     private void Update()
     {
         //AI
@@ -34,6 +41,10 @@ public class Enemy : MonoBehaviour
         if(visibilityDistance < 10) 
         {
             transform.position = Vector2.MoveTowards(this.transform.position, player.transform.position, speed * Time.deltaTime);
+        }
+        else
+        {
+            transform.position = Vector2.MoveTowards(this.transform.position, startPosition, speed * Time.deltaTime);
         }
 
         //Attack
