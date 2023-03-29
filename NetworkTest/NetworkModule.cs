@@ -1,15 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
-
-public interface INetworkModule
-{
-    public Task ConnectToGame();
-    public Task ConnectToGame(string code);
-    public Task Disconnect();
-}
 
 public class NetworkModule : MonoBehaviour
 {
@@ -21,7 +13,7 @@ public class NetworkModule : MonoBehaviour
     private NetworkHandlerRemotePlayer _remotePlayer;
     private bool _canSendPlayerPosition;
 
-    void Awake()
+    async void Awake()
     {
         _playerName = $"Player #{DateTime.Now.Second}";
         _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName);
@@ -30,22 +22,22 @@ public class NetworkModule : MonoBehaviour
         while (!_localPlayer.PlayerInGame)
         {
             if (_localPlayer.CanConnectToGame)
-                _localPlayer.Connect(null);
+                await _localPlayer.Connect(null);
             else
             {
                 Thread.Sleep(2000);
                 if (!_localPlayer.CanConnectToGame)
-                    _localPlayer.UpdatePlayerInfo();
+                    await _localPlayer.UpdatePlayerInfo();
             }
             Thread.Sleep(2000);
         }
         _canSendPlayerPosition = true;
     }
 
-    void OnDestroy()
+    async void OnDestroy()
     {
         if (_localPlayer.PlayerInGame)
-            _localPlayer.Disconnect();
+            await _localPlayer.Disconnect();
         _client.Stop();
     }
 
@@ -62,7 +54,7 @@ public class NetworkModule : MonoBehaviour
             ExecuteTasks(_localPlayer);
     }
 
-    private void InitClient()
+    private async void InitClient()
     {
         _client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
         //_client = new ClientSideUnity("192.168.0.2", 4000, 5126, _localPlayer, _remotePlayer);
@@ -70,7 +62,7 @@ public class NetworkModule : MonoBehaviour
         _client.Logger.LogEvent += Debug.Log;
         _client.Start();
         _localPlayer.Client = _client;
-        _localPlayer.UpdatePlayerInfo();
+        await _localPlayer.UpdatePlayerInfo();
     }
 
     private void ExecuteTasks(ExecuteTasksInMainThread executor)
@@ -86,6 +78,7 @@ public class NetworkModule : MonoBehaviour
             item.IsExecuted = true;
         }
         executor.IsTaskExecuting = false;
+        executor.AddTasksFromQueue();
     }
 
     private IEnumerator SendPlayerPositionTimeout()

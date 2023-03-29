@@ -12,23 +12,25 @@ public class ExecuteTasksInMainThread
     public ExecuteTasksInMainThread()
     {
         Tasks = new List<ExecutableAction>();
+        TaskQueue = new List<ExecutableAction>();
     }
 
+    private List<ExecutableAction> TaskQueue { get; set; }
     public List<ExecutableAction> Tasks { get; private set; }
     public bool CanExecuteTasks { get; private set; } = true;
     public bool IsTaskExecuting { get; set; } = false;
 
-    protected void AddNewTask(ExecutableAction action)
+    public void AddTasksFromQueue()
     {
-        while (true)
-        {
-            if (IsTaskExecuting)
-                continue;
-            CanExecuteTasks = false;
-            Tasks.RemoveAll(item => item.IsExecuted);
-            Tasks.Add(action);
-            CanExecuteTasks = true;
-            break;
-        }
+        CanExecuteTasks = false;
+        Tasks.RemoveAll(item => item.IsExecuted);
+        Tasks.AddRange(TaskQueue);
+        CanExecuteTasks = true;
+    }
+
+    protected void AddTaskToQueue(ExecutableAction action)
+    {
+        TaskQueue.RemoveAll(item => item.IsExecuted);
+        TaskQueue.Add(action);
     }
 }

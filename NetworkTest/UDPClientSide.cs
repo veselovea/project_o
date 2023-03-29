@@ -16,7 +16,7 @@ public class UDPClientSide
     private bool _isDisposed = false;
     private ushort _localPort;
 
-    public UDPClientSide(string address, ushort remotePort, ushort localPort)
+    public UDPClientSide(string address, ushort remotePort, ushort localPort, Func<byte[], Task> handler = null)
     {
         if (localPort < 1024)
             throw new ArgumentOutOfRangeException("Parameter localPort should be more than 1024");
@@ -25,7 +25,7 @@ public class UDPClientSide
         _client.Client.SendBufferSize = BufferSize;
         _client.Client.Blocking = false;
         _remote = new IPEndPoint(IPAddress.Parse(address), remotePort);
-        _receiver = new Thread(() => ReceiverAsync());
+        _receiver = new Thread(async () => await ReceiverAsync(handler is null ? ReceiveHandler : handler));
         _localPort = localPort;
         Logger = new Logger(LogLevel.Simple);
     }
@@ -82,7 +82,7 @@ public class UDPClientSide
         }
     }
 
-    private async Task ReceiverAsync()
+    private async Task ReceiverAsync(Func<byte[], Task> handler)
     {
         while (_isStarted)
         {
@@ -93,7 +93,7 @@ public class UDPClientSide
                     continue;
                 byte[] buffer = result.Buffer;
                 await Logger.WriteLogMessage($"[>>] Received {buffer.Length} bytes", LogLevel.Base);
-                await ReceiveHandler(buffer);
+                await handler?.Invoke(buffer);
             }
             catch (Exception e)
             {

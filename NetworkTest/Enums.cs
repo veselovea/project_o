@@ -32,5 +32,7 @@ public enum NetworkObjectType
     None,
     PlayerInfo,
     GameNetworkObject,
-    ConnectionToPoolResult
+    ConnectionToPoolResult,
+    PlayerBaseInfo,
+    CaveGenerationInfo
 }

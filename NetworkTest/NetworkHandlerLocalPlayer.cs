@@ -108,6 +108,6 @@ public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread
             _playerPrefub = GameObject.Instantiate(_playerPrefub);
             _playerPrefub.name = _playerInfo.Name;
         };
-        base.AddNewTask(action);
+        base.AddTaskToQueue(action);
     }
 }

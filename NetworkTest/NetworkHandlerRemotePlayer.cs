@@ -26,7 +26,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
             player.name = playerInfo.Name;
             _remotePlayers.Add(player);
         };
-        base.AddNewTask(action);
+        base.AddTaskToQueue(action);
     }
 
     public void Dead(PlayerInfo playerInfo)
@@ -40,7 +40,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
             GameObject.Destroy(player);
             _remotePlayers.Remove(player);
         };
-        base.AddNewTask(action);
+        base.AddTaskToQueue(action);
     }
 
     public void Move(PlayerInfo playerInfo, string pos)
@@ -54,7 +54,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
             player.transform.position = position;
             player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
         };
-        base.AddNewTask(action);
+        base.AddTaskToQueue(action);
     }
 }
 
