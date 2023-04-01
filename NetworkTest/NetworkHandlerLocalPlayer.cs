@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread
+public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread, ILocalPlayer
 {
     private ClientSideUnity _client;
 
@@ -44,6 +43,37 @@ public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread
             Command = GameCommand.Move,
             CommandArgument = Serializer.GetJson(transform)
         };
+        GameNetworkPacket packet = new GameNetworkPacket()
+        {
+            Player = _playerInfo,
+            Command = GeneralCommand.GameCommand,
+            Type = NetworkObjectType.GameNetworkObject,
+            Data = Serializer.GetJson(networkObject)
+        };
+        string json = Serializer.GetJson(packet);
+        byte[] buffer = Encoding.ASCII.GetBytes(json);
+        await _client.SendAsync(buffer);
+    }
+
+    public async Task Attack(bool isHit, float damage, string hittedPlayerName)
+    {
+        PlayerTransform transform = GetPlayerTransform();
+        GameNetworkObject networkObject = new GameNetworkObject()
+        {
+            Command = GameCommand.Attack,
+            CommandArgument = Serializer.GetJson(transform)
+        };
+        if (isHit)
+        {
+            PlayerAttack attack = new PlayerAttack
+            {
+                Damage = damage,
+                PlayerName = hittedPlayerName,
+                Transform = transform
+            };
+            networkObject.Command = GameCommand.HittedAttack;
+            networkObject.CommandArgument = Serializer.GetJson(attack);
+        }
         GameNetworkPacket packet = new GameNetworkPacket()
         {
             Player = _playerInfo,

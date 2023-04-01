@@ -44,6 +44,10 @@ public class ClientSideUnity : UDPClientSide
                             _remotePlayer.Move(packet.Player, data.CommandArgument);
                             break;
                         case GameCommand.Attack:
+                            _remotePlayer.Attack(packet.Player, data.CommandArgument);
+                            break;
+                        case GameCommand.HittedAttack:
+                            _remotePlayer.HittedAttack(packet.Player, data.CommandArgument);
                             break;
                         default:
                             break;

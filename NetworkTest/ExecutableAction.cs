@@ -9,13 +9,14 @@ public class ExecutableAction
 
 public class ExecuteTasksInMainThread
 {
+    private List<ExecutableAction> _tasksQueue;
+
     public ExecuteTasksInMainThread()
     {
         Tasks = new List<ExecutableAction>();
-        TaskQueue = new List<ExecutableAction>();
+        _tasksQueue = new List<ExecutableAction>();
     }
 
-    private List<ExecutableAction> TaskQueue { get; set; }
     public List<ExecutableAction> Tasks { get; private set; }
     public bool CanExecuteTasks { get; private set; } = true;
     public bool IsTaskExecuting { get; set; } = false;
@@ -23,16 +24,21 @@ public class ExecuteTasksInMainThread
     public void AddTasksFromQueue()
     {
         CanExecuteTasks = false;
-        Tasks.RemoveAll(item => item.IsExecuted);
-        Tasks.AddRange(TaskQueue);
+        Tasks.RemoveAll(item =>
+        {
+            if (item is null)
+                return false;
+            return item.IsExecuted;
+        });
+        Tasks.AddRange(_tasksQueue);
         CanExecuteTasks = true;
     }
 
     protected void AddTaskToQueue(ExecutableAction action)
     {
-        TaskQueue.RemoveAll(item => item.IsExecuted);
-        TaskQueue.Add(action);
+        _tasksQueue.RemoveAll(item => item.IsExecuted);
+        _tasksQueue.Add(action);
         if (Tasks.Count == 0)
-            Tasks.AddRange(TaskQueue);
+            Tasks.AddRange(_tasksQueue);
     }
 }

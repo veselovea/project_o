@@ -56,6 +56,16 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
         };
         base.AddTaskToQueue(action);
     }
+
+    public void Attack(PlayerInfo playerInfo, string data)
+    {
+
+    }
+
+    public void HittedAttack(PlayerInfo playerInfo, string data)
+    {
+
+    }
 }
 
 

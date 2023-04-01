@@ -12,7 +12,8 @@ public enum GameCommand
     Born,
     Dead,
     Move,
-    Attack
+    Attack,
+    HittedAttack
 }
 public enum ConnectionStatus
 {

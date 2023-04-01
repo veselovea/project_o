@@ -6,6 +6,7 @@ using UnityEngine;
 public class NetworkModule : MonoBehaviour
 {
     public GameObject _playerPrefub;
+    public GameObject _remotePlayerPrefub;
     public string _playerName;
 
     private ClientSideUnity _client;
@@ -56,9 +57,9 @@ public class NetworkModule : MonoBehaviour
 
     private async void InitClient()
     {
-        _client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
-        //_client = new ClientSideUnity("192.168.0.2", 4000, 5126, _localPlayer, _remotePlayer);
-        _client.Logger.Level = LogLevel.Simple;
+        //_client = new ClientSideUnity("90.188.226.136", 4000, 5126, _localPlayer, _remotePlayer);
+        _client = new ClientSideUnity("192.168.0.5", 4000, 5126, _localPlayer, _remotePlayer);
+        _client.Logger.Level = LogLevel.Advanced;
         _client.Logger.LogEvent += Debug.Log;
         _client.Start();
         _localPlayer.Client = _client;
@@ -73,6 +74,8 @@ public class NetworkModule : MonoBehaviour
         executor.IsTaskExecuting = true;
         foreach (var item in executor.Tasks)
         {
+            if (item is null)
+                continue;
             if (!item.IsExecuted)
                 item.Execute();
             item.IsExecuted = true;
