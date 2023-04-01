@@ -13,9 +13,9 @@ public abstract class Weapons : MonoBehaviour
 {
     public abstract NamesOfWeapons WeaponName { get; protected set; }
     public virtual Animator Anim { get; protected set; }
+    public virtual Collider2D WeaponColliider { get; protected set; }
 
     public abstract int Damage { get; protected set; }
-    public abstract float RangeAttack { get; protected set; }
     public abstract float Speed { get; protected set; }
     public virtual bool IsCanAttack { get; protected set; } = true;
 
@@ -38,5 +38,18 @@ public abstract class Weapons : MonoBehaviour
         IsCanAttack = false;
         yield return new WaitForSeconds(Speed);
         IsCanAttack = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
+        {
+            collider.GetComponent<Enemy>().TakeDamage(Damage);
+        }
+
+        if (collider.gameObject.tag == "Player" && IsCanAttack == false)
+        {
+            collider.GetComponent<Creatures>().TakeDamage(Damage);
+        }
     }
 }

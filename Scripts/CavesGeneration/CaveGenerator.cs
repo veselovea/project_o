@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class CaveGenerator : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class CaveGenerator : MonoBehaviour
 
     private List<EnvironmentObject> GeneratedEnvironmentAreas { get; set; } = new();
     private List<Tuple<int, int>> ActiveEnvironmentAreas { get; set; } = new();
+
+    private List<EnemyOnChunk> ActiveEnemies { get; set; } = new();
 
     private Camera CameraMain { get; set; }
     private NavMeshGenerator NMG { get; set; }
@@ -191,6 +194,8 @@ public class CaveGenerator : MonoBehaviour
             if(isNewChunkGenerated == true)
             {
                 StartCoroutine(RegenerateNavMesh());
+
+                CheckActiveEnemies();
             }
         }
 
@@ -200,7 +205,32 @@ public class CaveGenerator : MonoBehaviour
     IEnumerator RegenerateNavMesh()
     {
         yield return new WaitForSeconds(1f);
+
         NMG.GenerateNavMesh();
+    }
+
+    private void CheckActiveEnemies()
+    {
+        List<EnemyOnChunk> EnemiesToDelete = new();
+
+        foreach (EnemyOnChunk enemy in ActiveEnemies)
+        {
+            if (enemy.Clone == null)
+            {
+                enemy.Original = null;
+                EnemiesToDelete.Add(enemy);
+            }
+            else if (Vector2.Distance(enemy.Clone.transform.position, CameraMain.transform.position) > 40)
+            {
+                Destroy(enemy.Clone);
+                EnemiesToDelete.Add(enemy);
+            }
+        }
+
+        foreach (EnemyOnChunk enemy in EnemiesToDelete)
+        {
+            ActiveEnemies.Remove(enemy);
+        }
     }
 
     private void CheckShowedChunks()
@@ -262,28 +292,6 @@ public class CaveGenerator : MonoBehaviour
             Destroy(chunk.ChunkFloorClone);
         }
 
-        List<ChunkBlock> blocksToDelete = new();
-        List<EnemyOnChunk> enemiesToDelete = new();
-
-        foreach (EnemyOnChunk enemy in chunk.Enemies)
-        {
-            if(enemy.Clone != null)
-            {
-                Destroy(enemy.Clone);
-            }
-            else
-            {
-                enemiesToDelete.Add(enemy);
-            }
-        }
-
-        //foreach (EnemyOnChunk enemy in enemiesToDelete)
-        //{
-        //    chunk.Enemies.Remove(enemy);
-        //}
-
-        enemiesToDelete.Clear();
-
         int counter = 0;
         foreach (ChunkBlock block in chunk.ChunkBlocks)
         {
@@ -298,18 +306,7 @@ public class CaveGenerator : MonoBehaviour
             {
                 Destroy(block.Clone);
             }
-            else
-            {
-                blocksToDelete.Add(block);
-            }
         }
-
-        //foreach (ChunkBlock block in blocksToDelete)
-        //{
-        //    chunk.ChunkBlocks.Remove(block);
-        //}
-
-        blocksToDelete.Clear();
 
         yield return new WaitForSeconds(2f);
 
@@ -327,19 +324,8 @@ public class CaveGenerator : MonoBehaviour
                 {
                     Destroy(block.Clone);
                 }
-                else
-                {
-                    blocksToDelete.Add(block);
-                }
             }
         }
-
-        //foreach (ChunkBlock block in blocksToDelete)
-        //{
-        //    chunk.ChunkBlocks.Remove(block);
-        //}
-
-        blocksToDelete.Clear();
     }
 
     private void GenerateChunk(Tuple<int, int>chunkPosition)
@@ -395,65 +381,63 @@ public class CaveGenerator : MonoBehaviour
             startPointX = originalStartPointX;
             for (int y = 0; y < 10; y++)
             {
-                Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(startPointX, startPointY), 0f);
-                if (hitCollider == null)
+                Collider2D hitCaveCollider = Physics2D.OverlapCircle(new Vector2(startPointX, startPointY), 0f, LayerMask.GetMask("Caves"));
+                Collider2D hitResourceCollider = Physics2D.OverlapCircle(new Vector2(startPointX, startPointY), 0f, LayerMask.GetMask("Resources"));
+                Collider2D hitPOICollider = Physics2D.OverlapCircle(new Vector2(startPointX, startPointY), 0f, LayerMask.GetMask("POIs"));
+
+                if(hitCaveCollider == null && hitResourceCollider == null && hitPOICollider == null)
                 {
                     chunkBlock = new();
 
                     chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
-                    
+
                     chunkBlock.Original = commonStoneBlock;
 
                     newChunk.ChunkBlocks.Add(chunkBlock);
                 }
-                else
+
+                if (hitPOICollider != null)
                 {
-                    POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
-                    if (poi != null)
+                    POIBuilder poi = hitPOICollider.GetComponent<POIBuilder>();
+
+                    foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition))
                     {
-                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition))
-                        {
-                            chunkBlock = new();
+                        chunkBlock = new();
 
-                            chunkBlock.Position = POIblock.Item1;
+                        chunkBlock.Position = POIblock.Item1;
 
-                            chunkBlock.Original = POIblock.Item2;
+                        chunkBlock.Original = POIblock.Item2;
 
-                            newChunk.ChunkBlocks.Add(chunkBlock);
-                        }
+                        newChunk.ChunkBlocks.Add(chunkBlock);
                     }
-                    else
+                }
+
+                if(hitPOICollider == null && hitResourceCollider != null)
+                {
+                    ResourceColliderRandomizer rcr = hitResourceCollider.GetComponent<ResourceColliderRandomizer>();
+
+                    chunkBlock = new();
+
+                    chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
+
+                    chunkBlock.Original = rcr.ResourceType;
+
+                    newChunk.ChunkBlocks.Add(chunkBlock);
+                }
+
+                if(hitCaveCollider != null && hitResourceCollider == null)
+                {
+                    int roll = UnityEngine.Random.Range(0, 100);
+
+                    if (roll >= 99)
                     {
-                        ResourceColliderRandomizer rcr = hitCollider.GetComponent<ResourceColliderRandomizer>();
-                        if (rcr != null)
-                        {
-                            chunkBlock = new();
+                        int enemyNumber = UnityEngine.Random.Range(0, Enemies.Count);
 
-                            chunkBlock.Position = new Vector3(startPointX, startPointY, 0);
+                        enemy = new();
+                        enemy.Original = Enemies[enemyNumber];
+                        enemy.Position = new Vector3(startPointX, startPointY, 0);
 
-                            chunkBlock.Original = rcr.ResourceType;
-
-                            newChunk.ChunkBlocks.Add(chunkBlock);
-                        }
-                        else
-                        {
-                            CaveColliderRandomizer ccr = hitCollider.GetComponent<CaveColliderRandomizer>();
-                            if(ccr != null)
-                            {
-                                int roll = UnityEngine.Random.Range(0, 100);
-
-                                if(roll >= 99)
-                                {
-                                    int enemyNumber = UnityEngine.Random.Range(0, Enemies.Count);
-
-                                    enemy = new();
-                                    enemy.Original = Enemies[enemyNumber];
-                                    enemy.Position = new Vector3(startPointX, startPointY, 0);
-
-                                    newChunk.Enemies.Add(enemy);
-                                }
-                            }
-                        }
+                        newChunk.Enemies.Add(enemy);
                     }
                 }
 
@@ -492,17 +476,6 @@ public class CaveGenerator : MonoBehaviour
 
         foreach (ChunkBlock block in chunk.ChunkBlocks)
         {
-            Collider2D hitCollider = Physics2D.OverlapCircle(new Vector2(block.Position.x, block.Position.y), 0f);
-
-            if (hitCollider != null)
-            {
-                POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
-                if (poi != null)
-                {
-                    poi.BuildInChunk(chunk.ChunkPosition);
-                }
-            }
-
             counter++;
 
             if(counter % 50 == 0)
@@ -510,12 +483,20 @@ public class CaveGenerator : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
             }
 
-            block.Clone = Instantiate(block.Original, block.Position, Quaternion.identity);
+
+            if (block.Original != null)
+            {
+                block.Clone = Instantiate(block.Original, block.Position, Quaternion.identity);
+            }
         }
 
         foreach (EnemyOnChunk enemy in chunk.Enemies)
         {
-            enemy.Clone = Instantiate(enemy.Original, enemy.Position, Quaternion.identity);
+            if (enemy.Clone == null && enemy.Original != null)
+            {
+                enemy.Clone = Instantiate(enemy.Original, enemy.Position, Quaternion.identity);
+                ActiveEnemies.Add(enemy);
+            }
         }
     }
 
