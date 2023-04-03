@@ -2,6 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -34,22 +35,12 @@ public class BuildingManager : MonoBehaviour
         WriteDebug();
     }
 
-    private void WriteDebug()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log(baseSceneName);
-            Debug.Log(buildMode);
-            Debug.Log(blockPrefabs);
-            Debug.Log(curentBlock);
-        }
-    }
-
     private void FixedUpdate()
     {
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true)
         {
-            //¬ начеле должны выключатьс€ скрипты игрока
+            transform.GetComponent<PlayerScript>().enabled = false;
+            transform.Find("InventoryUI").gameObject.SetActive(false);
 
             CameraMove();
             PlaceBlock();
@@ -58,6 +49,23 @@ public class BuildingManager : MonoBehaviour
         else if (SceneManager.GetActiveScene().name == caveSceneName && buildMode == true)
         {
             Debug.Log("Ёээ бабушка, этот пристройка на*уй не нужен!");
+        }
+        else
+        {
+            transform.GetComponent<PlayerScript>().enabled = true;
+            transform.Find("InventoryUI").gameObject.SetActive(false);
+        }
+    }
+
+    private void WriteDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            GameObject.Find("BaseCore").gameObject.GetComponent<BaseCore>().WriteDebug();
+            //Debug.Log(baseSceneName);
+            //Debug.Log(buildMode);
+            //Debug.Log(blockPrefabs);
+            //Debug.Log(curentBlock);
         }
     }
 
@@ -105,7 +113,9 @@ public class BuildingManager : MonoBehaviour
 
                 position.z = 0;
 
-                Instantiate(curentBlock, position, Quaternion.identity);                
+                GameObject.Find("BaseCore").gameObject.GetComponent<BaseCore>().AddBlock(curentBlock.name, position);
+
+                Instantiate(curentBlock, position, Quaternion.identity).name = curentBlock.name;
             }
         }
     }
@@ -119,6 +129,8 @@ public class BuildingManager : MonoBehaviour
 
             if (hit.transform != null && hit.transform.name == "HitBox")
             {
+                GameObject.Find("BaseCore").gameObject.GetComponent<BaseCore>().RemoveBlock(hit.transform.parent.gameObject.name, hit.transform.parent.gameObject.transform.position);
+
                 Destroy(hit.transform.parent.gameObject);
             }
         }
