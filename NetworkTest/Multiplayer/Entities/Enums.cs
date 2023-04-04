@@ -9,6 +9,7 @@
 
 public enum GameCommand
 {
+    CreateBase,
     Born,
     Dead,
     Move,
@@ -33,7 +34,5 @@ public enum NetworkObjectType
     None,
     PlayerInfo,
     GameNetworkObject,
-    ConnectionToPoolResult,
-    PlayerBaseInfo,
-    CaveGenerationInfo
+    ConnectionToPoolResult
 }
