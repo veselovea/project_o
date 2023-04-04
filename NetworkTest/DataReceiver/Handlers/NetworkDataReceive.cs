@@ -20,8 +20,8 @@ public class NetworkDataReceive : MonoBehaviour, IFortressHandler, IDBREceiveHan
         {
             fBlocks[i] = new FortressBlock
             {
-                Name = blocks[i].blockName,
-                Position = blocks[i].blockPosition
+                Name = blocks[i].BlockName,
+                Position = blocks[i].BlockPosition
                 .ToString()
                 .Replace("(", "")
                 .Replace(")", "")
