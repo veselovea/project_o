@@ -7,19 +7,19 @@ using UnityEngine;
 
 public class Eblock
 {
-    public string blockName;
-    public Vector3 blockPosition;
+    public string BlockName { get; set; }
+    public Vector3 BlockPosition { get; set; }
 
     public Eblock(string blockName, Vector3 blockPosition)
     {
-        this.blockName = blockName;
-        this.blockPosition = blockPosition;
+        this.BlockName = blockName;
+        this.BlockPosition = blockPosition;
     }
 
     public Eblock()
     {
-        this.blockName = "";
-        this.blockPosition = Vector3.zero;
+        this.BlockName = "";
+        this.BlockPosition = Vector3.zero;
     }
 }
 
@@ -49,7 +49,7 @@ public class BaseCore : MonoBehaviour
         Eblock eblockRemove = null;
         foreach (Eblock eBlock in baseStructure)
         {
-            if (eBlock.blockName == blockName && eBlock.blockPosition == blockPosition)
+            if (eBlock.BlockName == blockName && eBlock.BlockPosition == blockPosition)
             {
                 eblockRemove = eBlock;
             }
@@ -60,14 +60,14 @@ public class BaseCore : MonoBehaviour
         }
     }
 
-    public void LoadBase(List<Eblock> baseStructure)
+    public void SaveBase(Eblock[] baseStructure)
     {
-        baseStructure.Clear();
-        baseStructure.AddRange(baseStructure);
+        this.baseStructure.Clear();
+        this.baseStructure.AddRange(baseStructure);
     }
 
-    public List<Eblock> GetBase()
+    public Eblock[] GetBase()
     {
-        return baseStructure;
+        return baseStructure.ToArray();
     }
 }

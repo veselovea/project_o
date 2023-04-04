@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,7 +14,7 @@ public class BuildingManager : MonoBehaviour
     private float cameraSpeed;
     private GameObject curentBlock;
 
-    public GameObject[] blockPrefabs;
+    public List<GameObject> blockPrefabs;
     public string baseSceneName;
     public string caveSceneName;
 
@@ -23,6 +25,7 @@ public class BuildingManager : MonoBehaviour
         baseSceneName = "DNA_Scene";
         caveSceneName = "ChunkTestScene";
         cameraSpeed = 10f;
+        blockPrefabs.AddRange(Resources.LoadAll<GameObject>("Blocks"));
         curentBlock = blockPrefabs[0];
     }
 
@@ -32,7 +35,7 @@ public class BuildingManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Tab) && buildMode) buildMode = false;
 
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true) SwitchBlock();
-        WriteDebug();
+        //WriteDebug();
     }
 
     private void FixedUpdate()
@@ -115,7 +118,7 @@ public class BuildingManager : MonoBehaviour
 
                 GameObject.Find("BaseCore").gameObject.GetComponent<BaseCore>().AddBlock(curentBlock.name, position);
 
-                Instantiate(curentBlock, position, Quaternion.identity).name = curentBlock.name;
+                Instantiate(curentBlock, position, Quaternion.identity, GameObject.Find("BaseCore").transform).name = curentBlock.name;
             }
         }
     }
