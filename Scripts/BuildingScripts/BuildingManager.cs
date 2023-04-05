@@ -37,7 +37,7 @@ public class BuildingManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Tab) && buildMode) buildMode = false;
 
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true) SwitchBlock();
-       WriteDebug();
+       //WriteDebug();
     }
 
     private void FixedUpdate()

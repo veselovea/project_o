@@ -38,6 +38,12 @@ public class BaseCore : MonoBehaviour
         NetworkDataReceive.OnLoadFortress += LoadFortress;
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+            SaveFortress(baseStructure.ToArray());
+    }
+
     public void WriteDebug()
     {
         Debug.Log("baseStructure: " + baseStructure.Count);
