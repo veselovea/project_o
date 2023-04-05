@@ -8,14 +8,14 @@ public class DoorScript : MonoBehaviour
 {
     private void Start()
     {
-        transform.FindChild("ButtonText").gameObject.SetActive(false);
+        transform.Find("ButtonText").gameObject.SetActive(false);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            transform.FindChild("ButtonText").gameObject.SetActive(true);
+            transform.Find("ButtonText").gameObject.SetActive(true);
         }
     }
 

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
-using Unity.VisualScripting;
-
+using UnityEditor.VersionControl;
 
 public class DataClientSide
 {
@@ -72,6 +70,7 @@ public class DataClientSide
             if (value.Contains("ENDMARKER"))
                 break;
         }
+        value = value.Replace("ENDMARKER", "");
         DataNetworkPacket packet = Serializer.GetObject<DataNetworkPacket>(value);
         FortressData data = Serializer.GetObject<FortressData>(packet.Argument);
         _dbHandler.LoadFortress(data);

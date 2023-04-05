@@ -1,16 +1,36 @@
 using System;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
-public class NetworkDataReceive : MonoBehaviour, IFortressHandler, IDBREceiveHandler
+public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
 {
+    public static event Action<Eblock[]> OnLoadFortress;
+
     private DataClientSide _client;
-    private IFortressHandler _playerBase;
 
     void Awake()
     {
+        TestTODeO.OnSaveFortress += SaveFortress;
         _client = new DataClientSide(this);
-        _playerBase = GetComponent<IFortressHandler>();
+        _client.Start();
+    }
+
+    void OnDestroy()
+    {
+        _client.Stop();
+    }
+
+    void Start()
+    {
+        DataNetworkPacket packet = new DataNetworkPacket()
+        {
+            Command = DataCommand.GetFortress,
+            Argument = "db_test_player_1"
+        };
+        byte[] buffer = Encoding.ASCII.GetBytes(
+            Serializer.GetJson(packet));
+        _client.Send(buffer);
     }
 
     public void SaveFortress(Eblock[] blocks)
@@ -29,7 +49,7 @@ public class NetworkDataReceive : MonoBehaviour, IFortressHandler, IDBREceiveHan
         }
         FortressData data = new FortressData()
         {
-            PlayerName = "???",
+            PlayerName = "db_test_player_1",
             Blocks = fBlocks
         };
         string json = Serializer.GetJson(data);
@@ -37,9 +57,6 @@ public class NetworkDataReceive : MonoBehaviour, IFortressHandler, IDBREceiveHan
         byte[] buffer = Encoding.ASCII.GetBytes(Serializer.GetJson(packet));
         _client.Send(buffer);
     }
-
-    public void LoadFortress(Eblock[] blocks)
-        => _playerBase.LoadFortress(blocks);
 
     public void LoadFortress(FortressData data)
     {
@@ -53,6 +70,6 @@ public class NetworkDataReceive : MonoBehaviour, IFortressHandler, IDBREceiveHan
             Vector3 position = new Vector3(x, y, z);
             eblocks[i] = new Eblock(data.Blocks[i].Name, position);
         }
-        this.LoadFortress(eblocks);
+        OnLoadFortress?.Invoke(eblocks);
     }
 }
