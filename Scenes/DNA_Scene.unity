@@ -138,7 +138,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -523,6 +523,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8985695626658859076, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 9027069968186870205, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -731,10 +735,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4211f004f316204380ffa99f40aa97a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockPrefabs:
-  - {fileID: 7970271923513250684, guid: 48a2ce05b403cc64bbb184f569e0b12d, type: 3}
-  - {fileID: 7970271923513250684, guid: 33e3601b9f711b94abe304c97fc88269, type: 3}
-  - {fileID: 7970271923513250684, guid: 6521c3e25f076a7459365dc41b407197, type: 3}
+  blockPrefabs: []
   baseSceneName: 
   caveSceneName: 
 --- !u!1 &2139446662

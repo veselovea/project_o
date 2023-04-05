@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -25,13 +27,15 @@ public class Eblock
 
 public class BaseCore : MonoBehaviour
 {
-    [SerializeField]
     private List<GameObject> blockList = new List<GameObject>();
     private List<Eblock> baseStructure = new List<Eblock>();
+
+    public static event Action<Eblock[]> OnSaveFortress;
 
     void Start()
     {
         blockList.AddRange(Resources.LoadAll<GameObject>("Blocks"));
+        NetworkDataReceive.OnLoadFortress += LoadFortress;
     }
 
     public void WriteDebug()
@@ -46,7 +50,7 @@ public class BaseCore : MonoBehaviour
 
     public void RemoveBlock(string blockName, Vector3 blockPosition)
     {
-        Eblock eblockRemove = null;
+/*        Eblock eblockRemove = null;
         foreach (Eblock eBlock in baseStructure)
         {
             if (eBlock.BlockName == blockName && eBlock.BlockPosition == blockPosition)
@@ -54,20 +58,29 @@ public class BaseCore : MonoBehaviour
                 eblockRemove = eBlock;
             }
         }
-        if (baseStructure.Remove(eblockRemove) != null)
+        if (eblockRemove != null)
         {
             baseStructure.Remove(eblockRemove);
+        }*/
+
+        baseStructure.RemoveAll(baseStructure => baseStructure.BlockName == blockName && baseStructure.BlockPosition == blockPosition);
+    }
+
+    public void SaveFortress(Eblock[] blocks) 
+    {
+        OnSaveFortress?.Invoke(blocks);
+    }
+
+    public void LoadFortress(Eblock[] blocks)
+    {
+        baseStructure.Clear();
+        baseStructure.AddRange(blocks);
+
+        foreach (Eblock block in baseStructure)
+        {
+            GameObject original = blockList.Where(blockList => blockList.gameObject.name == block.BlockName).First();
+
+            Instantiate(original, block.BlockPosition, Quaternion.identity, transform);
         }
-    }
-
-    public void SaveBase(Eblock[] baseStructure)
-    {
-        this.baseStructure.Clear();
-        this.baseStructure.AddRange(baseStructure);
-    }
-
-    public Eblock[] GetBase()
-    {
-        return baseStructure.ToArray();
     }
 }
