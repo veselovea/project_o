@@ -15,31 +15,28 @@ public class BaseInitializer : MonoBehaviour
         //StartCoroutine(DelayedBasesRotation());
     }
 
-    private IEnumerator DelayedBasesRotation()
+    private IEnumerator DelayedBasesRotation(GameObject baseSpot)
     {
         yield return new WaitForSeconds(5f);
 
-        foreach (GameObject baseSpot in baseSpots)
+        if (baseSpot.transform.position.x == 115)
         {
-            if (baseSpot.transform.position.x == 115)
-            {
-                baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
-            }
+            baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
+        }
 
-            if (baseSpot.transform.position.x == -115)
-            {
-                baseSpot.transform.eulerAngles = new Vector3(0, 0, 0);
-            }
+        if (baseSpot.transform.position.x == -115)
+        {
+            baseSpot.transform.eulerAngles = new Vector3(0, 0, 0);
+        }
 
-            if (baseSpot.transform.position.y == 115)
-            {
-                baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
-            }
+        if (baseSpot.transform.position.y == 115)
+        {
+            baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
+        }
 
-            if (baseSpot.transform.position.y == -115)
-            {
-                baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
-            }
+        if (baseSpot.transform.position.y == -115)
+        {
+            baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
         }
     }
 
@@ -49,17 +46,19 @@ public class BaseInitializer : MonoBehaviour
         {
             try
             {
-                GameObject currentBase = baseSpots[baseSpots.Length - 1];
+                GameObject currentBaseSpot = baseSpots[baseSpots.Length - 1];
                 Array.Resize(ref baseSpots, baseSpots.Length - 1);
 
                 foreach (Eblock block in playerBase.PlayerBaseBlocks)
                 {
                     Instantiate(
                         blockList.Find(bl => bl.gameObject.name == block.BlockName),
-                        currentBase.transform.TransformPoint(block.BlockPosition),
+                        currentBaseSpot.transform.TransformPoint(block.BlockPosition),
                         Quaternion.identity,
-                        currentBase.transform);
+                        currentBaseSpot.transform);
                 }
+
+                StartCoroutine(DelayedBasesRotation(currentBaseSpot));
             }
             catch(Exception e)
             {
