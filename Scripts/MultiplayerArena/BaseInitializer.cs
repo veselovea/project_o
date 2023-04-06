@@ -64,9 +64,7 @@ public class BaseInitializer : MonoBehaviour
                     };
                 }
 
-                action();
-                action = null;
-
+                StartCoroutine(InstantiateBlocks(action));
                 StartCoroutine(DelayedBasesRotation(currentBaseSpot));
             }
             catch(Exception e)
@@ -76,9 +74,16 @@ public class BaseInitializer : MonoBehaviour
         }
     }
 
+    IEnumerator InstantiateBlocks(Action act)
+    {
+        act();
+        act = null;
+        yield return null;
+    }
+
     //// Update is called once per frame
     //void Update()
     //{
-        
+
     //}
 }
