@@ -1,13 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BaseInitializer : MonoBehaviour
 {
-    public List<GameObject> baseSpots;
+    private GameObject[] baseSpots;
+    private List<GameObject> blockList = new();
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        blockList.AddRange(Resources.LoadAll<GameObject>("Blocks"));
+        baseSpots = GameObject.FindGameObjectsWithTag("Respawn");
         //StartCoroutine(DelayedBasesRotation());
     }
 
@@ -41,11 +45,26 @@ public class BaseInitializer : MonoBehaviour
 
     public void SetupBase(PlayerBaseObject playerBase)
     {
-        GameObject[] baseSpots = GameObject.FindGameObjectsWithTag("Respawn");
-
-        foreach (GameObject spot in baseSpots)
+        if(baseSpots.Length > 0)
         {
+            try
+            {
+                GameObject currentBase = baseSpots[baseSpots.Length - 1];
+                Array.Resize(ref baseSpots, baseSpots.Length - 1);
 
+                foreach (Eblock block in playerBase.PlayerBaseBlocks)
+                {
+                    Instantiate(
+                        blockList.Find(bl => bl.gameObject.name == block.BlockName),
+                        currentBase.transform.TransformPoint(block.BlockPosition),
+                        Quaternion.identity,
+                        currentBase.transform);
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e.Message);
+            }
         }
     }
 
