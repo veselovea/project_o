@@ -7,6 +7,7 @@ public class BaseInitializer : MonoBehaviour
 {
     private GameObject[] baseSpots;
     private List<GameObject> blockList = new();
+    private Action action;
     // Start is called before the first frame update
     void Awake()
     {
@@ -49,14 +50,22 @@ public class BaseInitializer : MonoBehaviour
                 GameObject currentBaseSpot = baseSpots[baseSpots.Length - 1];
                 Array.Resize(ref baseSpots, baseSpots.Length - 1);
 
+                playerBase.Player.transform.position = currentBaseSpot.transform.position;
+
                 foreach (Eblock block in playerBase.PlayerBaseBlocks)
                 {
-                    Instantiate(
+                    action += () =>
+                    {
+                        Instantiate(
                         blockList.Find(bl => bl.gameObject.name == block.BlockName),
                         currentBaseSpot.transform.TransformPoint(block.BlockPosition),
                         Quaternion.identity,
                         currentBaseSpot.transform);
+                    };
                 }
+
+                action();
+                action = null;
 
                 StartCoroutine(DelayedBasesRotation(currentBaseSpot));
             }
