@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
 {
+    public string _playerName;
     public static event Action<Eblock[]> OnLoadFortress;
 
     private DataClientSide _client;
 
     void Awake()
     {
-        TestTODeO.OnSaveFortress += SaveFortress;
+        BaseCore.OnSaveFortress += SaveFortress;
         _client = new DataClientSide(this);
         _client.Start();
     }
@@ -26,7 +27,7 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
         DataNetworkPacket packet = new DataNetworkPacket()
         {
             Command = DataCommand.GetFortress,
-            Argument = "db_test_player_1"
+            Argument = _playerName
         };
         byte[] buffer = Encoding.ASCII.GetBytes(
             Serializer.GetJson(packet));
@@ -49,7 +50,7 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
         }
         FortressData data = new FortressData()
         {
-            PlayerName = "db_test_player_1",
+            PlayerName = _playerName,
             Blocks = fBlocks
         };
         string json = Serializer.GetJson(data);

@@ -1,18 +1,58 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
-public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
+public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHandler
 {
     private GameObject _playerPrefub;
     private List<GameObject> _remotePlayers;
 
-    public NetworkHandlerRemotePlayer(GameObject playerPrefub)
+    private object _baseInitializer;
+    private DataClientSide _dataSide;
+
+    public NetworkHandlerRemotePlayer(GameObject playerPrefub, object baseInitializer)
     {
         _playerPrefub = playerPrefub;
         _remotePlayers = new List<GameObject>(8);
+        _baseInitializer = baseInitializer;
+        _dataSide = new DataClientSide(this);
     }
 
-    // Можно не удалять объект, а просто скрывать и перемещать в начальную позицию
+    public void LoadFortress(FortressData data)
+    {
+        Eblock[] eblocks = new Eblock[data.Blocks.Length];
+        for (int i = 0; i < eblocks.Length; i++)
+        {
+            string[] temp = data.Blocks[i].Position.Split(',');
+            float x = Convert.ToSingle(temp[0].Replace('.', ','));
+            float y = Convert.ToSingle(temp[1].Replace('.', ','));
+            float z = Convert.ToSingle(temp[2].Replace('.', ','));
+            Vector3 position = new Vector3(x, y, z);
+            eblocks[i] = new Eblock(data.Blocks[i].Name, position);
+        }
+
+    }
+
+    public void Connect(PlayerInfo playerInfo)
+    {
+        Born(playerInfo);
+        DataNetworkPacket packet = new DataNetworkPacket()
+        {
+            Command = DataCommand.GetFortress,
+            Argument = playerInfo.Name
+        };
+        byte[] buffer = Encoding.ASCII.GetBytes(
+            Serializer.GetJson(packet));
+        _dataSide.Send(buffer);
+    }
+
+    public void Disconnect(PlayerInfo playerInfo)
+    {
+        Dead(playerInfo);
+
+    }
 
     public void Born(PlayerInfo playerInfo)
     {
@@ -27,7 +67,9 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread
             _remotePlayers.Add(player);
         };
         base.AddTaskToQueue(action);
+
     }
+    // Можно не удалять объект, а просто скрывать и перемещать в начальную позицию
 
     public void Dead(PlayerInfo playerInfo)
     {

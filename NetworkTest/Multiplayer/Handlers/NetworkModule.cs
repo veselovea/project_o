@@ -12,13 +12,14 @@ public class NetworkModule : MonoBehaviour
     private ClientSideUnity _client;
     private NetworkHandlerLocalPlayer _localPlayer;
     private NetworkHandlerRemotePlayer _remotePlayer;
+    private object _baseInitializer;
     private bool _canSendPlayerPosition;
 
     async void Awake()
     {
         _playerName = $"Player #{DateTime.Now.Second}";
         _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName);
-        _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub);
+        _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, _baseInitializer);
         InitClient();
         while (!_localPlayer.PlayerInGame)
         {
