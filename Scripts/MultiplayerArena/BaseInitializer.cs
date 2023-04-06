@@ -50,7 +50,10 @@ public class BaseInitializer : MonoBehaviour
                 GameObject currentBaseSpot = baseSpots[baseSpots.Length - 1];
                 Array.Resize(ref baseSpots, baseSpots.Length - 1);
 
-                playerBase.Player.transform.position = currentBaseSpot.transform.position;
+                action += () =>
+                {
+                    playerBase.Player.transform.position = currentBaseSpot.transform.position;
+                };
 
                 foreach (Eblock block in playerBase.PlayerBaseBlocks)
                 {
