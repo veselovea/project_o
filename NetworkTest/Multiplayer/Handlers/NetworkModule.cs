@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Threading;
 using UnityEngine;
@@ -17,9 +16,9 @@ public class NetworkModule : MonoBehaviour
 
     async void Awake()
     {
-        _playerName = $"Player #{DateTime.Now.Second}";
-        _baseInitializer = GetComponent<BaseInitializer>();
-        _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName);
+        //_playerName = $"Player #{DateTime.Now.Second}";
+        _baseInitializer = GameObject.Find("GameObject").GetComponent<BaseInitializer>();
+        _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, _baseInitializer);
         _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, _baseInitializer);
         InitClient();
         while (!_localPlayer.PlayerInGame)
@@ -42,19 +41,21 @@ public class NetworkModule : MonoBehaviour
         if (_localPlayer.PlayerInGame)
             await _localPlayer.Disconnect();
         _client.Stop();
+        _remotePlayer.OnDestroy();
     }
 
     async void Update()
     {
         if (_canSendPlayerPosition && _localPlayer.PlayerInGame)
         {
+            _canSendPlayerPosition = false;
             await _localPlayer.SendPlayerPosition();
             StartCoroutine(SendPlayerPositionTimeout());
         }
         if (!_remotePlayer.IsTaskExecuting && _remotePlayer.CanExecuteTasks)
-            ExecuteTasks(_remotePlayer);
+            _remotePlayer.ExecuteTasks();
         if (!_localPlayer.IsTaskExecuting && _localPlayer.CanExecuteTasks)
-            ExecuteTasks(_localPlayer);
+            _localPlayer.ExecuteTasks();
     }
 
     private async void InitClient()
@@ -68,27 +69,8 @@ public class NetworkModule : MonoBehaviour
         await _localPlayer.UpdatePlayerInfo();
     }
 
-    private void ExecuteTasks(ExecuteTasksInMainThread executor)
-    {
-        if (executor.Tasks.Count == 0
-            || !executor.CanExecuteTasks)
-            return;
-        executor.IsTaskExecuting = true;
-        foreach (var item in executor.Tasks)
-        {
-            if (item is null)
-                continue;
-            if (!item.IsExecuted)
-                item.Execute();
-            item.IsExecuted = true;
-        }
-        executor.IsTaskExecuting = false;
-        executor.AddTasksFromQueue();
-    }
-
     private IEnumerator SendPlayerPositionTimeout()
     {
-        _canSendPlayerPosition = false;
         yield return new WaitForSecondsRealtime(0.05f);
         _canSendPlayerPosition = true;
     }

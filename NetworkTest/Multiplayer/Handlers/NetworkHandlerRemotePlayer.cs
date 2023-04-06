@@ -17,6 +17,12 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         _remotePlayers = new List<GameObject>(8);
         _baseInitializer = baseInitializer;
         _dataSide = new DataClientSide(this);
+        _dataSide.Start();
+    }
+
+    public void OnDestroy()
+    {
+        _dataSide.Stop();
     }
 
     public void LoadFortress(FortressData data)
@@ -56,7 +62,6 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
     public void Disconnect(PlayerInfo playerInfo)
     {
         Dead(playerInfo);
-
     }
 
     public void Born(PlayerInfo playerInfo)

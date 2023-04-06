@@ -28,18 +28,17 @@ public class DataClientSide
     }
     public void Stop()
     {
+        _stream.Write(Encoding.ASCII.GetBytes("BYEFROMCLIENT"));
         Logger.Instance.WriteLogMessage("[**] Stopped", LogLevel.Simple);
         _isClosed = true;
-        _client.Client.Shutdown(SocketShutdown.Both);
-        _client.Client.Disconnect(false);
         _client.Close();
     }
 
     public async void Send(byte[] buffer)
     {
-        byte[] endMarker = Encoding.ASCII.GetBytes("ENDMARKER");
         if (_isClosed)
             return;
+        byte[] endMarker = Encoding.ASCII.GetBytes("ENDMARKER");
         if (buffer.Length < BufferSize)
             await _stream.WriteAsync(buffer, 0, buffer.Length);
         else
