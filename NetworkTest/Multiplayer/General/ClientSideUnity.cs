@@ -60,10 +60,10 @@ public class ClientSideUnity : UDPClientSide
                         _localPlayer.Connected();
                     }
                     else
-                        _remotePlayer.Born(packet.Player);
+                        _remotePlayer.Connect(packet.Player);
                     break;
                 case GeneralCommand.Disconnect:
-                    _remotePlayer.Dead(packet.Player);
+                    _remotePlayer.Disconnect(packet.Player);
                     break;
                 default:
                     break;

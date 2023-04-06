@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHandler
@@ -9,10 +8,10 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
     private GameObject _playerPrefub;
     private List<GameObject> _remotePlayers;
 
-    private object _baseInitializer;
+    private BaseInitializer _baseInitializer;
     private DataClientSide _dataSide;
 
-    public NetworkHandlerRemotePlayer(GameObject playerPrefub, object baseInitializer)
+    public NetworkHandlerRemotePlayer(GameObject playerPrefub, BaseInitializer baseInitializer)
     {
         _playerPrefub = playerPrefub;
         _remotePlayers = new List<GameObject>(8);
@@ -32,7 +31,13 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
             Vector3 position = new Vector3(x, y, z);
             eblocks[i] = new Eblock(data.Blocks[i].Name, position);
         }
-
+        GameObject player = _remotePlayers.Find(x => x.name == data.PlayerName);
+        PlayerBaseObject playerBase = new PlayerBaseObject
+        {
+            Player = player,
+            PlayerBaseBlocks = eblocks
+        };
+        _baseInitializer.SetupBase(playerBase);
     }
 
     public void Connect(PlayerInfo playerInfo)
@@ -67,7 +72,6 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
             _remotePlayers.Add(player);
         };
         base.AddTaskToQueue(action);
-
     }
     // Можно не удалять объект, а просто скрывать и перемещать в начальную позицию
 
