@@ -44,7 +44,7 @@ public class BaseInitializer : MonoBehaviour
         };
     }
 
-    public void SetupBase(PlayerBaseObject playerBase)
+    public Vector3 SetupBase(PlayerBaseObject playerBase)
     {
         if(baseSpots.Length > 0)
         {
@@ -73,12 +73,16 @@ public class BaseInitializer : MonoBehaviour
                 }
 
                 StartCoroutine(DelayedBasesRotation(currentBaseSpot));
+
+                return currentBaseSpot.transform.position;
             }
             catch(Exception e)
             {
                 Debug.Log(e.Message);
             }
         }
+
+        return Vector3.zero;
     }
 
     // Update is called once per frame
