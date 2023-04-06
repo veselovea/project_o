@@ -8,10 +8,10 @@ public class BaseInitializer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(DelayedBasesRotation());
+        //StartCoroutine(DelayedBasesRotation());
     }
 
-    IEnumerator DelayedBasesRotation()
+    private IEnumerator DelayedBasesRotation()
     {
         yield return new WaitForSeconds(5f);
 
@@ -36,6 +36,16 @@ public class BaseInitializer : MonoBehaviour
             {
                 baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
             }
+        }
+    }
+
+    public void SetupBase(PlayerBaseObject playerBase)
+    {
+        GameObject[] baseSpots = GameObject.FindGameObjectsWithTag("Respawn");
+
+        foreach (GameObject spot in baseSpots)
+        {
+
         }
     }
 

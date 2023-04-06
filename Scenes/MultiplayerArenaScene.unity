@@ -388,7 +388,7 @@ GameObject:
   - component: {fileID: 199695791}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 218431566}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -751,7 +751,7 @@ GameObject:
   - component: {fileID: 426344497}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -835,7 +835,7 @@ GameObject:
   - component: {fileID: 476266728}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1186,7 +1186,7 @@ PolygonCollider2D:
       - {x: -69.787476, y: 90.37228}
       - {x: -55.52305, y: 84.637634}
       - {x: -47.96068, y: 68.089554}
-      - {x: -36.02235, y: 41.32151}
+      - {x: -35.820038, y: 41.32151}
       - {x: -60.51718, y: 48.074806}
       - {x: -86.062996, y: 52.934307}
       - {x: -88.31055, y: 67.62156}
@@ -1210,7 +1210,7 @@ PolygonCollider2D:
       - {x: -38.529217, y: -11.127768}
       - {x: -60.29743, y: -23.95649}
       - {x: -72.48496, y: -29.042244}
-      - {x: -87.26422, y: -30.678955}
+      - {x: -87.301544, y: -30.423466}
       - {x: -90.69517, y: -19.516678}
       - {x: -99.130226, y: -15.961964}
       - {x: -114.42017, y: -12.825361}
@@ -1565,7 +1565,7 @@ GameObject:
   - component: {fileID: 946557335}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2204,7 +2204,7 @@ GameObject:
   - component: {fileID: 1631600248}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2399,7 +2399,7 @@ GameObject:
   - component: {fileID: 1842750493}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2483,7 +2483,7 @@ GameObject:
   - component: {fileID: 2127403554}
   m_Layer: 0
   m_Name: BaseSpot
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
