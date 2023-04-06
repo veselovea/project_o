@@ -62,11 +62,14 @@ public class BaseInitializer : MonoBehaviour
                 {
                     action += () =>
                     {
-                        Instantiate(
-                        blockList.Find(bl => bl.gameObject.name == block.BlockName),
-                        currentBaseSpot.transform.TransformPoint(block.BlockPosition),
-                        Quaternion.identity,
-                        currentBaseSpot.transform);
+                        GameObject newBlock = Instantiate
+                        (
+                            blockList.Find(bl => bl.gameObject.name == block.BlockName),
+                            currentBaseSpot.transform.TransformPoint(block.BlockPosition),
+                            Quaternion.identity
+                        );
+
+                        newBlock.transform.SetParent(currentBaseSpot.transform);
                     };
                 }
 
@@ -82,7 +85,10 @@ public class BaseInitializer : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        action();
-        action = null;
+        if (action != null)
+        {
+            action();
+            action = null;
+        }
     }
 }
