@@ -20,25 +20,28 @@ public class BaseInitializer : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        if (baseSpot.transform.position.x == 115)
+        action += () =>
         {
-            baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
-        }
+            if (baseSpot.transform.position.x == 115)
+            {
+                baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
+            }
 
-        if (baseSpot.transform.position.x == -115)
-        {
-            baseSpot.transform.eulerAngles = new Vector3(0, 0, 0);
-        }
+            if (baseSpot.transform.position.x == -115)
+            {
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, 0);
+            }
 
-        if (baseSpot.transform.position.y == 115)
-        {
-            baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
-        }
+            if (baseSpot.transform.position.y == 115)
+            {
+                baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
+            }
 
-        if (baseSpot.transform.position.y == -115)
-        {
-            baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
-        }
+            if (baseSpot.transform.position.y == -115)
+            {
+                baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
+            }
+        };
     }
 
     public void SetupBase(PlayerBaseObject playerBase)
@@ -67,7 +70,6 @@ public class BaseInitializer : MonoBehaviour
                     };
                 }
 
-                StartCoroutine(InstantiateBlocks(action));
                 StartCoroutine(DelayedBasesRotation(currentBaseSpot));
             }
             catch(Exception e)
@@ -77,16 +79,10 @@ public class BaseInitializer : MonoBehaviour
         }
     }
 
-    IEnumerator InstantiateBlocks(Action act)
+    // Update is called once per frame
+    void FixedUpdate()
     {
-        act();
-        act = null;
-        yield return null;
+        action();
+        action = null;
     }
-
-    //// Update is called once per frame
-    //void Update()
-    //{
-
-    //}
 }
