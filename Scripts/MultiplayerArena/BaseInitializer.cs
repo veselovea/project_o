@@ -66,10 +66,9 @@ public class BaseInitializer : MonoBehaviour
                         (
                             blockList.Find(bl => bl.gameObject.name == block.BlockName),
                             currentBaseSpot.transform.TransformPoint(block.BlockPosition),
-                            Quaternion.identity
+                            Quaternion.identity,
+                            currentBaseSpot.transform
                         );
-
-                        newBlock.transform.SetParent(currentBaseSpot.transform);
                     };
                 }
 
