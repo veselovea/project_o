@@ -24,7 +24,7 @@ public class BaseInitializer : MonoBehaviour
         {
             if (baseSpot.transform.position.x == 115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, 180);
             }
 
             if (baseSpot.transform.position.x == -115)
@@ -34,12 +34,12 @@ public class BaseInitializer : MonoBehaviour
 
             if (baseSpot.transform.position.y == 115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, 90);
             }
 
             if (baseSpot.transform.position.y == -115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, -90);
             }
         };
     }
