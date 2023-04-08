@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8467091984201328831}
   - component: {fileID: 9187894675813984396}
   - component: {fileID: 8983743838323597402}
-  m_Layer: 0
+  m_Layer: 21
   m_Name: ResourceCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

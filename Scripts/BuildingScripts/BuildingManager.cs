@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -10,8 +13,9 @@ public class BuildingManager : MonoBehaviour
     private Vector2 cameraMoveVector;
     private float cameraSpeed;
     private GameObject curentBlock;
+    private GameObject baseCore;
 
-    public GameObject[] blockPrefabs;
+    public List<GameObject> blockPrefabs;
     public string baseSceneName;
     public string caveSceneName;
 
@@ -22,7 +26,9 @@ public class BuildingManager : MonoBehaviour
         baseSceneName = "DNA_Scene";
         caveSceneName = "ChunkTestScene";
         cameraSpeed = 10f;
+        blockPrefabs.AddRange(Resources.LoadAll<GameObject>("Blocks"));
         curentBlock = blockPrefabs[0];
+        baseCore = GameObject.Find("BaseCore");
     }
 
     void Update()
@@ -31,25 +37,15 @@ public class BuildingManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Tab) && buildMode) buildMode = false;
 
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true) SwitchBlock();
-        WriteDebug();
-    }
-
-    private void WriteDebug()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log(baseSceneName);
-            Debug.Log(buildMode);
-            Debug.Log(blockPrefabs);
-            Debug.Log(curentBlock);
-        }
+       //WriteDebug();
     }
 
     private void FixedUpdate()
     {
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true)
         {
-            //¬ начеле должны выключатьс€ скрипты игрока
+            transform.GetComponent<PlayerScript>().enabled = false;
+            transform.Find("InventoryUI").gameObject.SetActive(false);
 
             CameraMove();
             PlaceBlock();
@@ -58,6 +54,23 @@ public class BuildingManager : MonoBehaviour
         else if (SceneManager.GetActiveScene().name == caveSceneName && buildMode == true)
         {
             Debug.Log("Ёээ бабушка, этот пристройка на*уй не нужен!");
+        }
+        else
+        {
+            transform.GetComponent<PlayerScript>().enabled = true;
+            transform.Find("InventoryUI").gameObject.SetActive(false);
+        }
+    }
+
+    private void WriteDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            baseCore.GetComponent<BaseCore>().WriteDebug();
+            //Debug.Log(baseSceneName);
+            //Debug.Log(buildMode);
+            //Debug.Log(blockPrefabs);
+            //Debug.Log(curentBlock);
         }
     }
 
@@ -105,7 +118,9 @@ public class BuildingManager : MonoBehaviour
 
                 position.z = 0;
 
-                Instantiate(curentBlock, position, Quaternion.identity);                
+                baseCore.GetComponent<BaseCore>().AddBlock(curentBlock.name, position);
+
+                Instantiate(curentBlock, position, Quaternion.identity, GameObject.Find("BaseCore").transform).name = curentBlock.name;
             }
         }
     }
@@ -119,6 +134,8 @@ public class BuildingManager : MonoBehaviour
 
             if (hit.transform != null && hit.transform.name == "HitBox")
             {
+                baseCore.GetComponent<BaseCore>().RemoveBlock(hit.transform.parent.gameObject.name, hit.transform.parent.gameObject.transform.position);
+
                 Destroy(hit.transform.parent.gameObject);
             }
         }

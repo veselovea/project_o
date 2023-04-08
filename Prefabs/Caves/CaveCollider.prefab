@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7309650233364328329}
   - component: {fileID: 123326688724994389}
   - component: {fileID: 6400589062864666013}
-  m_Layer: 0
+  m_Layer: 20
   m_Name: CaveCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

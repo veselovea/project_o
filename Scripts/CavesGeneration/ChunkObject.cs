@@ -10,7 +10,6 @@ public class ChunkObject
     public GameObject ChunkFloorOriginal { get; set; }
     public GameObject ChunkFloorClone { get; set; }
     public List<ChunkBlock> ChunkBlocks { get; set; }
-
     public List<EnemyOnChunk> Enemies { get; set; }
 }
 
