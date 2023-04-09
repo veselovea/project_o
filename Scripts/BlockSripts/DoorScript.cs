@@ -25,6 +25,5 @@ public class DoorScript : MonoBehaviour
         {
             transform.Find("ButtonText").gameObject.SetActive(true);
         }
-
     }
 }

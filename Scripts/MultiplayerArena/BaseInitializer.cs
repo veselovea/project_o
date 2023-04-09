@@ -24,7 +24,7 @@ public class BaseInitializer : MonoBehaviour
         {
             if (baseSpot.transform.position.x == 115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(180, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, 180);
             }
 
             if (baseSpot.transform.position.x == -115)
@@ -34,17 +34,17 @@ public class BaseInitializer : MonoBehaviour
 
             if (baseSpot.transform.position.y == 115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(90, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, 90);
             }
 
             if (baseSpot.transform.position.y == -115)
             {
-                baseSpot.transform.eulerAngles = new Vector3(-90, 0, 0);
+                baseSpot.transform.eulerAngles = new Vector3(0, 0, -90);
             }
         };
     }
 
-    public void SetupBase(PlayerBaseObject playerBase)
+    public Vector3 SetupBase(PlayerBaseObject playerBase)
     {
         if(baseSpots.Length > 0)
         {
@@ -62,27 +62,36 @@ public class BaseInitializer : MonoBehaviour
                 {
                     action += () =>
                     {
-                        Instantiate(
-                        blockList.Find(bl => bl.gameObject.name == block.BlockName),
-                        currentBaseSpot.transform.TransformPoint(block.BlockPosition),
-                        Quaternion.identity,
-                        currentBaseSpot.transform);
+                        GameObject newBlock = Instantiate
+                        (
+                            blockList.Find(bl => bl.gameObject.name == block.BlockName),
+                            currentBaseSpot.transform.TransformPoint(block.BlockPosition),
+                            Quaternion.identity,
+                            currentBaseSpot.transform
+                        );
                     };
                 }
 
                 StartCoroutine(DelayedBasesRotation(currentBaseSpot));
+
+                return currentBaseSpot.transform.position;
             }
             catch(Exception e)
             {
                 Debug.Log(e.Message);
             }
         }
+
+        return Vector3.zero;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        action();
-        action = null;
+        if (action != null)
+        {
+            action();
+            action = null;
+        }
     }
 }
