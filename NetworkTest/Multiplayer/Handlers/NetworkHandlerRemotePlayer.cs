@@ -7,7 +7,7 @@ using UnityEngine;
 public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHandler
 {
     private GameObject _playerPrefub;
-    private List<RemotePlayer> _remotePlayers;
+    private List<RemotePlayerData> _remotePlayers;
 
     private BaseInitializer _baseInitializer;
     private DataClientSide _dataSide;
@@ -15,7 +15,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
     public NetworkHandlerRemotePlayer(GameObject playerPrefub, BaseInitializer baseInitializer)
     {
         _playerPrefub = playerPrefub;
-        _remotePlayers = new List<RemotePlayer>(8);
+        _remotePlayers = new List<RemotePlayerData>(8);
         _baseInitializer = baseInitializer;
         _dataSide = new DataClientSide(this);
         _dataSide.Start();
@@ -38,7 +38,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
             Vector3 position = new Vector3(x, y, z);
             eblocks[i] = new Eblock(data.Blocks[i].Name, position);
         }
-        RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == data.PlayerName);
+        RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == data.PlayerName);
         PlayerBaseObject playerBase = new PlayerBaseObject
         {
             Player = player.Prefub,
@@ -49,7 +49,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
 
     public void Connect(PlayerInfo playerInfo)
     {
-        RemotePlayer player = new RemotePlayer
+        RemotePlayerData player = new RemotePlayerData
         {
             Info = playerInfo
         };
@@ -59,7 +59,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
 
     public void Disconnect(PlayerInfo playerInfo)
     {
-        RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+        RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
         Dead(player.Prefub);
         _remotePlayers.Remove(player);
     }
@@ -69,7 +69,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         ExecutableAction action = new ExecutableAction();
         action.Execute = () =>
         {
-            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
             if (player.Prefub is null)
             {
                 player.Prefub = GameObject.Instantiate<GameObject>(_playerPrefub);
@@ -92,7 +92,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         ExecutableAction action = new ExecutableAction();
         action.Execute = () =>
         {
-            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
             if (player is null)
                 return;
             player.Prefub.SetActive(false);
@@ -107,7 +107,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         {
             PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
             Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
-            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
             player.Prefub.transform.position = position;
             player.Prefub.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
         };

@@ -6,6 +6,7 @@ using UnityEngine;
 public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
 {
     public string _playerName;
+    public GameObject _playerPrefub;
     public static event Action<Eblock[]> OnLoadFortress;
 
     private DataClientSide _client;
