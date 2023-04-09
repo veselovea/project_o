@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
 public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHandler
 {
     private GameObject _playerPrefub;
-    private List<GameObject> _remotePlayers;
+    private List<RemotePlayer> _remotePlayers;
 
     private BaseInitializer _baseInitializer;
     private DataClientSide _dataSide;
@@ -14,7 +15,7 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
     public NetworkHandlerRemotePlayer(GameObject playerPrefub, BaseInitializer baseInitializer)
     {
         _playerPrefub = playerPrefub;
-        _remotePlayers = new List<GameObject>(8);
+        _remotePlayers = new List<RemotePlayer>(8);
         _baseInitializer = baseInitializer;
         _dataSide = new DataClientSide(this);
         _dataSide.Start();
@@ -37,31 +38,30 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
             Vector3 position = new Vector3(x, y, z);
             eblocks[i] = new Eblock(data.Blocks[i].Name, position);
         }
-        GameObject player = _remotePlayers.Find(x => x.name == data.PlayerName);
+        RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == data.PlayerName);
         PlayerBaseObject playerBase = new PlayerBaseObject
         {
-            Player = player,
+            Player = player.Prefub,
             PlayerBaseBlocks = eblocks
         };
-        _baseInitializer.SetupBase(playerBase);
+        player.StartPosition = _baseInitializer.SetupBase(playerBase);
     }
 
     public void Connect(PlayerInfo playerInfo)
     {
-        Born(playerInfo);
-        DataNetworkPacket packet = new DataNetworkPacket()
+        RemotePlayer player = new RemotePlayer
         {
-            Command = DataCommand.GetFortress,
-            Argument = playerInfo.Name
+            Info = playerInfo
         };
-        byte[] buffer = Encoding.ASCII.GetBytes(
-            Serializer.GetJson(packet));
-        _dataSide.Send(buffer);
+        _remotePlayers.Add(player);
+        Born(playerInfo);
     }
 
     public void Disconnect(PlayerInfo playerInfo)
     {
-        Dead(playerInfo);
+        RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+        Dead(player.Prefub);
+        _remotePlayers.Remove(player);
     }
 
     public void Born(PlayerInfo playerInfo)
@@ -69,12 +69,19 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         ExecutableAction action = new ExecutableAction();
         action.Execute = () =>
         {
-            if (_remotePlayers.Find(x => x.name == playerInfo.Name) is not null)
-                return;
-            GameObject player = GameObject.Instantiate<GameObject>(_playerPrefub);
-            player.GetComponent<PlayerScript>()._isRemotePlayer = true;
-            player.name = playerInfo.Name;
-            _remotePlayers.Add(player);
+            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            if (player.Prefub is null)
+            {
+                player.Prefub = GameObject.Instantiate<GameObject>(_playerPrefub);
+                player.Prefub.GetComponent<PlayerScript>()._isRemotePlayer = true;
+                player.Prefub.name = playerInfo.Name;
+                OnPlayerConnected(playerInfo.Name);
+            }
+            else
+            {
+                player.Prefub.transform.position = player.StartPosition;
+                player.Prefub.SetActive(true);
+            }
         };
         base.AddTaskToQueue(action);
     }
@@ -85,11 +92,10 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         ExecutableAction action = new ExecutableAction();
         action.Execute = () =>
         {
-            GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
+            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
             if (player is null)
                 return;
-            GameObject.Destroy(player);
-            _remotePlayers.Remove(player);
+            player.Prefub.SetActive(false);
         };
         base.AddTaskToQueue(action);
     }
@@ -101,9 +107,9 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
         {
             PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
             Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
-            GameObject player = _remotePlayers.Find(x => x.name == playerInfo.Name);
-            player.transform.position = position;
-            player.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
+            RemotePlayer player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            player.Prefub.transform.position = position;
+            player.Prefub.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
         };
         base.AddTaskToQueue(action);
     }
@@ -116,6 +122,28 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
     public void HittedAttack(PlayerInfo playerInfo, string data)
     {
 
+    }
+
+    private void OnPlayerConnected(string playerName)
+    {
+        DataNetworkPacket packet = new DataNetworkPacket()
+        {
+            Command = DataCommand.GetFortress,
+            Argument = playerName
+        };
+        byte[] buffer = Encoding.ASCII.GetBytes(
+            Serializer.GetJson(packet));
+        _dataSide.Send(buffer);
+    }
+
+    private void Dead(GameObject prefub)
+    {
+        ExecutableAction action = new ExecutableAction();
+        action.Execute = () =>
+        {
+            GameObject.Destroy(prefub);
+        };
+        base.AddTaskToQueue(action);
     }
 }
 
