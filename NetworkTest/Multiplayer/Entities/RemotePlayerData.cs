@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class RemotePlayer
+public class RemotePlayerData
 {
     public PlayerInfo Info { get; set; }
     public GameObject Prefub { get; set; }
