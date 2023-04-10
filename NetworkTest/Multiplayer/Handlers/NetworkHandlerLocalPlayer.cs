@@ -1,18 +1,25 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread, ILocalPlayer
+public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread, ILocalPlayer, IDBREceiveHandler
 {
     private ClientSideUnity _client;
 
     private GameObject _playerPrefub;
     private PlayerInfo _playerInfo;
 
-    public NetworkHandlerLocalPlayer(GameObject playerPrefub, string playerName)
+    private BaseInitializer _baseInitializer;
+    private DataClientSide _dataSide;
+
+    public NetworkHandlerLocalPlayer(GameObject playerPrefub, string playerName, BaseInitializer baseInitializer)
     {
         _playerPrefub = playerPrefub;
         _playerInfo = new PlayerInfo() { Name = playerName };
+        _baseInitializer = baseInitializer;
+        _dataSide = new DataClientSide(this);
+        _dataSide.Start();
     }
 
     public PlayerInfo PlayerInfo { get => _playerInfo; set => _playerInfo = value; }
@@ -139,5 +146,35 @@ public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread, ILocalPlayer
             _playerPrefub.name = _playerInfo.Name;
         };
         base.AddTaskToQueue(action);
+
+        DataNetworkPacket packet = new DataNetworkPacket()
+        {
+            Command = DataCommand.GetFortress,
+            Argument = _playerInfo.Name
+        };
+        byte[] buffer = Encoding.ASCII.GetBytes(
+            Serializer.GetJson(packet));
+        _dataSide.Send(buffer);
+    }
+
+    public void LoadFortress(FortressData data)
+    {
+        Eblock[] eblocks = new Eblock[data.Blocks.Length];
+        for (int i = 0; i < eblocks.Length; i++)
+        {
+            string[] temp = data.Blocks[i].Position.Split(',');
+            float x = Convert.ToSingle(temp[0].Replace('.', ','));
+            float y = Convert.ToSingle(temp[1].Replace('.', ','));
+            float z = Convert.ToSingle(temp[2].Replace('.', ','));
+            Vector3 position = new Vector3(x, y, z);
+            eblocks[i] = new Eblock(data.Blocks[i].Name, position);
+        }
+        PlayerBaseObject playerBase = new PlayerBaseObject
+        {
+            Player = _playerPrefub,
+            PlayerBaseBlocks = eblocks
+        };
+        _dataSide.Stop();
+        _baseInitializer.SetupBase(playerBase);
     }
 }

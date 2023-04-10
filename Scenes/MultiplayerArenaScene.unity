@@ -2002,7 +2002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefub: {fileID: 1346702780079641948, guid: ce9be7e283db0564487a12c6d8f92ae8, type: 3}
   _remotePlayerPrefub: {fileID: 0}
-  _playerName: 
+  _playerName: db_test_player_1
 --- !u!4 &1612554733
 Transform:
   m_ObjectHideFlags: 0

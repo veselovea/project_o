@@ -1,5 +1,7 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEditor.VersionControl;
 
 public class DataClientSide
@@ -11,9 +13,14 @@ public class DataClientSide
     private bool _isClosed = true;
     private IDBREceiveHandler _dbHandler;
 
+    private bool _isLocked = false;
+    private List<byte[]> _sendQueue;
+    private byte[][] _toSend;
+
     public DataClientSide(IDBREceiveHandler dbHandler)
     {
         _dbHandler = dbHandler;
+        _sendQueue = new List<byte[]>();
     }
 
     public void Start()
@@ -28,18 +35,23 @@ public class DataClientSide
     }
     public void Stop()
     {
+        _stream.Write(Encoding.ASCII.GetBytes("BYEFROMCLIENT"));
         Logger.Instance.WriteLogMessage("[**] Stopped", LogLevel.Simple);
         _isClosed = true;
-        _client.Client.Shutdown(SocketShutdown.Both);
-        _client.Client.Disconnect(false);
         _client.Close();
     }
 
-    public async void Send(byte[] buffer)
+    public async ValueTask<bool> Send(byte[] buffer)
     {
-        byte[] endMarker = Encoding.ASCII.GetBytes("ENDMARKER");
         if (_isClosed)
-            return;
+            return false;
+        if (_isLocked)
+        {
+            _sendQueue.Add(buffer);
+            return false;
+        }
+        _isLocked = true;
+        byte[] endMarker = Encoding.ASCII.GetBytes("ENDMARKER");
         if (buffer.Length < BufferSize)
             await _stream.WriteAsync(buffer, 0, buffer.Length);
         else
@@ -55,9 +67,13 @@ public class DataClientSide
         await _stream.WriteAsync(endMarker);
         await Logger.Instance.WriteLogMessage($"[>>] Sent {buffer.Length} bytes", LogLevel.Advanced);
         Receive();
+
+        _isLocked = false;
+        StartQueue();
+        return true;
     }
 
-    public async void Receive()
+    private async void Receive()
     {
         byte[] buffer = new byte[BufferSize];
         int bytes = 0;
@@ -72,7 +88,21 @@ public class DataClientSide
         }
         value = value.Replace("ENDMARKER", "");
         DataNetworkPacket packet = Serializer.GetObject<DataNetworkPacket>(value);
-        FortressData data = Serializer.GetObject<FortressData>(packet.Argument);
-        _dbHandler.LoadFortress(data);
+        if (packet.Command == DataCommand.GetFortress)
+        {
+            FortressData data = Serializer.GetObject<FortressData>(packet.Argument);
+            _dbHandler.LoadFortress(data);
+        }
+    }
+
+    private void StartQueue()
+    {
+        _toSend = _sendQueue.ToArray();
+        _sendQueue = new List<byte[]>();
+        foreach (var item in _toSend)
+        {
+            Send(item);
+        }
+        _toSend = null;
     }
 }

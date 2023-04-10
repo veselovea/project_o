@@ -37,7 +37,6 @@ public class BuildingManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Tab) && buildMode) buildMode = false;
 
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true) SwitchBlock();
-       //WriteDebug();
     }
 
     private void FixedUpdate()
@@ -45,7 +44,7 @@ public class BuildingManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name == baseSceneName && buildMode == true)
         {
             transform.GetComponent<PlayerScript>().enabled = false;
-            transform.Find("InventoryUI").gameObject.SetActive(false);
+            //transform.Find("InventoryUI").gameObject.SetActive(false);
 
             CameraMove();
             PlaceBlock();
@@ -58,19 +57,7 @@ public class BuildingManager : MonoBehaviour
         else
         {
             transform.GetComponent<PlayerScript>().enabled = true;
-            transform.Find("InventoryUI").gameObject.SetActive(false);
-        }
-    }
-
-    private void WriteDebug()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            baseCore.GetComponent<BaseCore>().WriteDebug();
-            //Debug.Log(baseSceneName);
-            //Debug.Log(buildMode);
-            //Debug.Log(blockPrefabs);
-            //Debug.Log(curentBlock);
+            //transform.Find("InventoryUI").gameObject.SetActive(false);
         }
     }
 
@@ -120,7 +107,7 @@ public class BuildingManager : MonoBehaviour
 
                 baseCore.GetComponent<BaseCore>().AddBlock(curentBlock.name, position);
 
-                Instantiate(curentBlock, position, Quaternion.identity, GameObject.Find("BaseCore").transform).name = curentBlock.name;
+                Instantiate(curentBlock, position, Quaternion.identity, baseCore.transform).name = curentBlock.name;
             }
         }
     }

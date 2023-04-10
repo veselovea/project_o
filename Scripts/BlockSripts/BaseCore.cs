@@ -44,11 +44,6 @@ public class BaseCore : MonoBehaviour
             SaveFortress(baseStructure.ToArray());
     }
 
-    public void WriteDebug()
-    {
-        Debug.Log("baseStructure: " + baseStructure.Count);
-    }
-
     public void AddBlock(string blockName, Vector3 blockPosition)
     {
         baseStructure.Add(new Eblock(blockName, blockPosition));
@@ -56,25 +51,13 @@ public class BaseCore : MonoBehaviour
 
     public void RemoveBlock(string blockName, Vector3 blockPosition)
     {
-/*        Eblock eblockRemove = null;
-        foreach (Eblock eBlock in baseStructure)
-        {
-            if (eBlock.BlockName == blockName && eBlock.BlockPosition == blockPosition)
-            {
-                eblockRemove = eBlock;
-            }
-        }
-        if (eblockRemove != null)
-        {
-            baseStructure.Remove(eblockRemove);
-        }*/
-
         baseStructure.RemoveAll(baseStructure => baseStructure.BlockName == blockName && baseStructure.BlockPosition == blockPosition);
     }
 
     public void SaveFortress(Eblock[] blocks) 
     {
         OnSaveFortress?.Invoke(blocks);
+        Console.Beep();
     }
 
     public void LoadFortress(Eblock[] blocks)

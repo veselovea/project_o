@@ -21,6 +21,24 @@ public class ExecuteTasksInMainThread
     public bool CanExecuteTasks { get; private set; } = true;
     public bool IsTaskExecuting { get; set; } = false;
 
+    public void ExecuteTasks()
+    {
+        if (Tasks.Count == 0
+            || !CanExecuteTasks)
+            return;
+        IsTaskExecuting = true;
+        foreach (var item in Tasks)
+        {
+            if (item is null)
+                continue;
+            if (!item.IsExecuted)
+                item.Execute();
+            item.IsExecuted = true;
+        }
+        IsTaskExecuting = false;
+        AddTasksFromQueue();
+    }
+
     public void AddTasksFromQueue()
     {
         CanExecuteTasks = false;

@@ -110,7 +110,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565878983994852081}
-  m_BodyType: 1
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 3831377804465614280}
   - component: {fileID: 3079088218983782948}
   - component: {fileID: 3461548237763570038}
-  - component: {fileID: 7227692570445860528}
+  - component: {fileID: 5027336486923258071}
   - component: {fileID: 562939884901363075}
   m_Layer: 0
   m_Name: HitBox
@@ -236,7 +236,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!50 &7227692570445860528
+--- !u!50 &5027336486923258071
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -244,7 +244,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652200959736167090}
-  m_BodyType: 1
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0

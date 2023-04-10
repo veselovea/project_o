@@ -6,6 +6,7 @@ using UnityEngine;
 public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
 {
     public string _playerName;
+    public GameObject _playerPrefub;
     public static event Action<Eblock[]> OnLoadFortress;
 
     private DataClientSide _client;
@@ -22,7 +23,7 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
         _client.Stop();
     }
 
-    void Start()
+    async void Start()
     {
         DataNetworkPacket packet = new DataNetworkPacket()
         {
@@ -31,10 +32,10 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
         };
         byte[] buffer = Encoding.ASCII.GetBytes(
             Serializer.GetJson(packet));
-        _client.Send(buffer);
+        await _client.Send(buffer);
     }
 
-    public void SaveFortress(Eblock[] blocks)
+    public async void SaveFortress(Eblock[] blocks)
     {
         FortressBlock[] fBlocks = new FortressBlock[blocks.Length];
         for (int i = 0; i < blocks.Length; i++)
@@ -56,7 +57,7 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
         string json = Serializer.GetJson(data);
         DataNetworkPacket packet = new DataNetworkPacket(DataCommand.SaveFortress, json);
         byte[] buffer = Encoding.ASCII.GetBytes(Serializer.GetJson(packet));
-        _client.Send(buffer);
+        await _client.Send(buffer);
     }
 
     public void LoadFortress(FortressData data)
