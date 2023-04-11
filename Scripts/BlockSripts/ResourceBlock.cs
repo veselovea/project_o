@@ -10,13 +10,13 @@ public enum ResourcesFromBlocks
     Grass
 }
 
-public class ResourceBlock : MonoBehaviour
+abstract public class ResourceBlock : MonoBehaviour
 {
-    public int Durability { get; set; }
+    public abstract int Durability { get; set; }
 
-    public ResourcesFromBlocks Type { get; set; }
+    public abstract ResourcesFromBlocks Type { get; set; }
 
-    public int Break(int damage)
+    public virtual int Break(int damage)
     {
         Durability -= damage;
         if (Durability < 0)
