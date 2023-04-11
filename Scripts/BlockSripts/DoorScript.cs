@@ -30,7 +30,7 @@ public class DoorScript : ResourceBlock
         }
     }
 
-    private void OnTriggerEnter(Collider collider)
+/*    private void OnTriggerEnter(Collider collider)
     {
         if (collider.tag == "Player")
         {
@@ -40,5 +40,5 @@ public class DoorScript : ResourceBlock
         {
             transform.Find("ButtonText").gameObject.SetActive(false);
         }
-    }
+    }*/
 }

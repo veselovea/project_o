@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -12,6 +13,8 @@ public enum ResourcesFromBlocks
 
 abstract public class ResourceBlock : MonoBehaviour
 {
+    public event Action<GameObject> OnBreakBlock;
+
     public abstract int Durability { get; set; }
 
     public abstract ResourcesFromBlocks Type { get; set; }
@@ -21,7 +24,7 @@ abstract public class ResourceBlock : MonoBehaviour
         Durability -= damage;
         if (Durability < 0)
         {
-            Destroy(transform.parent.gameObject);
+            OnBreakBlock?.Invoke(gameObject);
             return 1;
         }
         return 0;
