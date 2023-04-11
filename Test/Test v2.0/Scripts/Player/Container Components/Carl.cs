@@ -1,18 +1,25 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class Carl : Creatures
 {
     public override NamesOfCreatures CreaturesName { get; protected set; } = NamesOfCreatures.Carl;
+    public override string PlayerName { get; protected set; }
+    public override Weapons weapon { get; protected set; }
     public override GameObject Player { get; protected set; }
     public Weapons Weapons { get; protected set; }
     public Vector3 moveDelta { get; protected set; }
 
     //Specifications
     public override int Health { get; protected set; } = 100;
+    public override int CurrentHealth { get; protected set; }
     public override float Speed { get; protected set; } = 5;
     public override float VisibilityDistance { get; protected set; } = 0;
+
 
     private void Start()
     {
@@ -25,6 +32,12 @@ public class Carl : Creatures
         if (Input.GetMouseButton(0))
         {
             Weapons.Attack();
+        }
+
+        //Health
+        if (Health <= 0)
+        {
+            Destroy(gameObject);
         }
     }
 

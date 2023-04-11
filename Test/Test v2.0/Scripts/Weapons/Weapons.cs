@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -19,6 +21,8 @@ public abstract class Weapons : MonoBehaviour
     public abstract float Speed { get; protected set; }
     public virtual bool IsCanAttack { get; protected set; } = true;
 
+    public event Action<Hitted> OnAttackPlayer;
+
     private void Awake() 
     {
         Anim = GetComponentInParent<Animator>();
@@ -26,6 +30,7 @@ public abstract class Weapons : MonoBehaviour
 
     public virtual void Attack()
     {
+
         if (IsCanAttack)
         {
             Anim.SetTrigger("attack");
@@ -42,6 +47,17 @@ public abstract class Weapons : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
+        Hitted hit = new Hitted();
+        hit.IsHit = false;
+
+        if (true)
+        {
+            hit.IsHit = true;
+            hit.Damage = Damage;
+            hit.Recipient = "QWE";
+        }
+        OnAttackPlayer?.Invoke(hit);
+
         if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
         {
             collider.GetComponent<Enemies>().TakeDamage(Damage);
