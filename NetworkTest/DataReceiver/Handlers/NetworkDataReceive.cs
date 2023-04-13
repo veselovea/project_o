@@ -13,6 +13,7 @@ public class NetworkDataReceive : MonoBehaviour, IDBREceiveHandler
 
     void Awake()
     {
+        _playerName = StartSceneScript.PlayerName;
         BaseCore.OnSaveFortress += SaveFortress;
         _client = new DataClientSide(this);
         _client.Start();
