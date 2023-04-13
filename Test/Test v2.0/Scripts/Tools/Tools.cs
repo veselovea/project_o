@@ -6,22 +6,18 @@ using UnityEngine;
 
 public enum NamesOfTools
 {
-    Sword,
-    BigBat,
-    Bow
+    Axe,
 }
 
 public abstract class Tools : MonoBehaviour
 {
-    public abstract NamesOfWeapons WeaponName { get; protected set; }
+    public abstract NamesOfTools ToolsName { get; protected set; }
     public virtual Animator Anim { get; protected set; }
-    public virtual Collider2D WeaponColliider { get; protected set; }
+    public virtual Collider2D ToolsColliider { get; protected set; }
 
     public abstract int Damage { get; protected set; }
     public abstract float Speed { get; protected set; }
-    public virtual bool IsCanAttack { get; protected set; } = true;
-
-    public event Action<Hitted> OnAttackPlayer;
+    public virtual bool IsCanBeat { get; protected set; } = true;
 
     private void Awake()
     {
@@ -31,7 +27,7 @@ public abstract class Tools : MonoBehaviour
     public virtual void Attack()
     {
 
-        if (IsCanAttack)
+        if (IsCanBeat)
         {
             Anim.SetTrigger("attack");
             StartCoroutine(Timeout());
@@ -40,32 +36,16 @@ public abstract class Tools : MonoBehaviour
 
     public IEnumerator Timeout()
     {
-        IsCanAttack = false;
+        IsCanBeat = false;
         yield return new WaitForSeconds(Speed);
-        IsCanAttack = true;
+        IsCanBeat = true;
     }
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        Hitted hit = new Hitted();
-        hit.IsHit = false;
-
-        if (true)
+        if (collider.gameObject.tag == "Block" && IsCanBeat == false)
         {
-            hit.IsHit = true;
-            hit.Damage = Damage;
-            hit.Recipient = "QWE";
-        }
-        OnAttackPlayer?.Invoke(hit);
-
-        if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
-        {
-            collider.GetComponent<Enemies>().TakeDamage(Damage);
-        }
-
-        if (collider.gameObject.tag == "Player" && IsCanAttack == false)
-        {
-            collider.GetComponent<Creatures>().TakeDamage(Damage);
+            collider.GetComponent<ResourceBlock>().Break(Damage);
         }
     }
 }

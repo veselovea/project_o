@@ -8,9 +8,8 @@ using UnityEngine;
 public class Carl : Creatures
 {
     public override NamesOfCreatures CreaturesName { get; protected set; } = NamesOfCreatures.Carl;
-    public override string PlayerName { get; protected set; }
+    public override string PlayerName { get; set; }
     public override Weapons weapon { get; protected set; }
-    public override GameObject Player { get; protected set; }
     public Weapons Weapons { get; protected set; }
     public Vector3 moveDelta { get; protected set; }
 

@@ -63,6 +63,11 @@ public abstract class Weapons : MonoBehaviour
             collider.GetComponent<Enemies>().TakeDamage(Damage);
         }
 
+        if (collider.gameObject.tag == "Crusher" && IsCanAttack == false)
+        {
+            collider.GetComponent<Crushers>().TakeDamage(Damage);
+        }
+
         if (collider.gameObject.tag == "Player" && IsCanAttack == false)
         {
             collider.GetComponent<Creatures>().TakeDamage(Damage);
