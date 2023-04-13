@@ -7,6 +7,10 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Когда-то он был красивым и успешный "EnumBlock", теперь он просто "Eblock"
+/// </summary>
+
 public class Eblock
 {
     public string BlockName { get; set; }

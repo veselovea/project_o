@@ -8,6 +8,12 @@ public class ResDrop
 {
     public ResourcesFromStructure Type;
     public int count;
+
+    public ResDrop(ResourcesFromStructure type, int count)
+    {
+        Type = type;
+        this.count = count;
+    }
 }
 
 abstract public class ResourceBlock : MonoBehaviour
@@ -18,19 +24,22 @@ abstract public class ResourceBlock : MonoBehaviour
 
     public abstract ResourcesFromStructure Type { get; set; }
 
-    public abstract int count { get; set; }
+    public abstract int Сount { get; set; }
+
+    /// <summary>
+    /// Наносит урон блоку.
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <returns>В случае, если у блока заканчивается прочность возвращает класс ResDrop</returns>
 
     public virtual ResDrop Break(int damage)
     {
         Durability -= damage;
         if (Durability < 0)
         {
-            ResDrop resDrop = new ResDrop();
-            resDrop.Type = Type;
-            resDrop.count = count;
             OnBreakBlock?.Invoke(gameObject);
             Destroy(gameObject);
-            return resDrop;
+            return new ResDrop(Type, Сount);
         }
         return null;
     }

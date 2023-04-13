@@ -8,12 +8,12 @@ public class StoneScript : ResourceBlock
 
     public override ResourcesFromStructure Type { get; set; }
 
-    public override int count { get; set; }
+    public override int Ñount { get; set; }
 
     void Start()
     {
         Durability = 100;
         Type = ResourcesFromStructure.Stone;
-        count = 1;
+        Ñount = 1;
     }
 }
