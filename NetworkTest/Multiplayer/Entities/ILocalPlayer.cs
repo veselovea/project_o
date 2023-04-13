@@ -2,5 +2,5 @@
 
 public interface ILocalPlayer
 {
-    public Task Attack(bool isHit, float damage, string hittedPlayerName);
+    public Task Attack(bool isHit, int damage, string hittedPlayerName);
 }

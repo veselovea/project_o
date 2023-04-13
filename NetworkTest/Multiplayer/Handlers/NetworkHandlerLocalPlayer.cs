@@ -62,7 +62,7 @@ public class NetworkHandlerLocalPlayer : ExecuteTasksInMainThread, ILocalPlayer,
         await _client.SendAsync(buffer);
     }
 
-    public async Task Attack(bool isHit, float damage, string hittedPlayerName)
+    public async Task Attack(bool isHit, int damage, string hittedPlayerName)
     {
         PlayerTransform transform = GetPlayerTransform();
         GameNetworkObject networkObject = new GameNetworkObject()

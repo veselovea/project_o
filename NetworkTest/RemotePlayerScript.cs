@@ -1,21 +1,30 @@
 ﻿using UnityEngine;
 
-public class RemotePlayerScript : Creatures, IRemotePlayer
+public class RemotePlayerScript : MonoBehaviour, IRemotePlayer
 {
-    public override NamesOfCreatures CreaturesName { get; protected set; }
-    public override GameObject Player { get; protected set; }
-    public override int Health { get; protected set; }
-    public override float Speed { get; protected set; }
-    public override float VisibilityDistance { get; protected set; }
+    private int Health = 100;
+    private Weapons _weapon;
 
-    void Awake()
+    public void Attack()
+        => _weapon?.Attack();
+
+    public void SetWeapon(Weapons weapons)
     {
-        CreaturesName = NamesOfCreatures.Carl;
-        
+        if (_weapon is null)
+            _weapon = weapons;
     }
 
-    public bool Attack(Vector3 direction)
+    public bool TakeDamage(int value)
     {
+        Health -= value;
+        if (Health <= 0)
+            return true;
         return false;
+    }
+
+    public void ResetHealth()
+    {
+        if (Health <= 0)
+            Health = 100;
     }
 }
