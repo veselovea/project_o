@@ -4,14 +4,14 @@ using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum NamesOfWeapons
+public enum NamesOfTools
 {
     Sword,
     BigBat,
     Bow
 }
 
-public abstract class Weapons : MonoBehaviour
+public abstract class Tools : MonoBehaviour
 {
     public abstract NamesOfWeapons WeaponName { get; protected set; }
     public virtual Animator Anim { get; protected set; }

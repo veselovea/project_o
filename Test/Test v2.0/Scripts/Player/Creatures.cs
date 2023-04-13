@@ -1,66 +1,64 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 public enum NamesOfCreatures
 {
     Carl,
-    BigOgr,
-    Ogr
 }
 
 public abstract class Creatures : MonoBehaviour
 {
     public abstract NamesOfCreatures CreaturesName { get; protected set; }
     public abstract GameObject Player { get; protected set; }
+    public abstract Weapons weapon { get; protected set; }
+    public abstract string PlayerName { get; protected set; }
 
+    //Specifications
     public abstract int Health { get; protected set; }
+    public abstract int CurrentHealth { get; protected set; }
     public abstract float Speed { get; protected set; }
     public abstract float VisibilityDistance { get; protected set; }
 
-    //public GameObject player;
+    //Net
+    public Func<bool, float, string, Task> OnPlayerAttack { get; set; }
+    public event Action<Hitted> OnAttackPlayer;
 
-    public int Hl = 100;
-    private Vector3 startPosition;
-    private Weapons weapon;
-
-    private CircleCollider2D circleCollider;
-    private BoxCollider2D boxCollider;
-
-    public void Start()
-    {
-        Player = GameObject.Find("Player");
-        startPosition = this.transform.position;
-    }
+    public event Action OnPlayerDead;
+    private bool IsDead = false;
 
     private void Awake()
     {
         weapon = GetComponentInChildren<Weapons>();
-        circleCollider = GetComponent<CircleCollider2D>();
+        weapon.OnAttackPlayer += AttackCallback;
     }
 
-    private void Update()
+    public void AttackCallback(Hitted hit)
     {
-        //Health
-        if (Health <= 0)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void OnCollisionEnter2d(Collider2D collision)
-    {
-        Collider2D circleCollision = collision.gameObject.GetComponent<Collider2D>();
-
-        if (circleCollider.IsTouching(circleCollision))
-        {
-            transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
-        }
+        OnAttackPlayer?.Invoke(hit);
     }
 
     public void TakeDamage(int Damage)
     {
-        //Taking damage
-        Hl -= Damage;
+        if (Damage >= Health)
+        {
+            OnPlayerDead?.Invoke();
+            IsDead = true;
+        }
+        CurrentHealth -= Damage;
     }
+
+    public void ResetHealth()
+    {
+        if (IsDead)
+            CurrentHealth = Health;
+    }
+}
+public class Hitted
+{
+    public bool IsHit { get; set; }
+    public float Damage { get; set; }
+    public string Recipient { get; set; }
 }

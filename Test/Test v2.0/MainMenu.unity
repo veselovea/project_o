@@ -207,6 +207,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+<<<<<<< HEAD
       - m_Target: {fileID: 298591334}
         m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
         m_MethodName: Play
@@ -214,11 +215,24 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+=======
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+>>>>>>> 0bf2a26ffb7b96c6308332f2948401eedc8f05fe
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
+<<<<<<< HEAD
         m_CallState: 1
+=======
+        m_CallState: 2
+>>>>>>> 0bf2a26ffb7b96c6308332f2948401eedc8f05fe
 --- !u!114 &24435453
 MonoBehaviour:
   m_ObjectHideFlags: 0
