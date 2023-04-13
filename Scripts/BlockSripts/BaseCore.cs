@@ -17,12 +17,6 @@ public class Eblock
         this.BlockName = blockName;
         this.BlockPosition = blockPosition;
     }
-
-    public Eblock()
-    {
-        this.BlockName = "";
-        this.BlockPosition = Vector3.zero;
-    }
 }
 
 public class BaseCore : MonoBehaviour
@@ -57,7 +51,6 @@ public class BaseCore : MonoBehaviour
     public void SaveFortress(Eblock[] blocks) 
     {
         OnSaveFortress?.Invoke(blocks);
-        Console.Beep();
     }
 
     public void LoadFortress(Eblock[] blocks)

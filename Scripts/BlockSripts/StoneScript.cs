@@ -5,11 +5,15 @@ using UnityEngine;
 public class StoneScript : ResourceBlock
 {
     public override int Durability { get; set; }
-    public override ResourcesFromBlocks Type { get; set; }
+
+    public override ResourcesFromStructure Type { get; set; }
+
+    public override int count { get; set; }
 
     void Start()
     {
         Durability = 100;
-        Type = ResourcesFromBlocks.Stone;
+        Type = ResourcesFromStructure.Stone;
+        count = 1;
     }
 }

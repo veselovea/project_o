@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum ResourcesFromBlocks
+public class ResDrop
 {
-    Door,
-    Stone,
-    Grass
+    public ResourcesFromStructure Type;
+    public int count;
 }
 
 abstract public class ResourceBlock : MonoBehaviour
@@ -17,16 +16,22 @@ abstract public class ResourceBlock : MonoBehaviour
 
     public abstract int Durability { get; set; }
 
-    public abstract ResourcesFromBlocks Type { get; set; }
+    public abstract ResourcesFromStructure Type { get; set; }
 
-    public virtual int Break(int damage)
+    public abstract int count { get; set; }
+
+    public virtual ResDrop Break(int damage)
     {
         Durability -= damage;
         if (Durability < 0)
         {
+            ResDrop resDrop = new ResDrop();
+            resDrop.Type = Type;
+            resDrop.count = count;
             OnBreakBlock?.Invoke(gameObject);
-            return 1;
+            Destroy(gameObject);
+            return resDrop;
         }
-        return 0;
+        return null;
     }
 }

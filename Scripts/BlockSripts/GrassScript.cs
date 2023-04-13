@@ -5,11 +5,15 @@ using UnityEngine;
 public class GrassScript : ResourceBlock
 {
     public override int Durability { get; set; }
-    public override ResourcesFromBlocks Type { get; set; }
+
+    public override ResourcesFromStructure Type { get; set; }
+
+    public override int count { get; set; }
 
     void Start()
     {
         Durability = 10;
-        Type = ResourcesFromBlocks.Grass;
+        Type = ResourcesFromStructure.Grass;
+        count = 1;
     }
 }
