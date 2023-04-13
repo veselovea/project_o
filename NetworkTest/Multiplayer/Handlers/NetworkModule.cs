@@ -16,7 +16,7 @@ public class NetworkModule : MonoBehaviour
 
     async void Awake()
     {
-        //_playerName = $"Player #{DateTime.Now.Second}";
+        _playerName = StartSceneScript.PlayerName;
         _baseInitializer = GameObject.Find("GameObject").GetComponent<BaseInitializer>();
         _localPlayer = new NetworkHandlerLocalPlayer(_playerPrefub, _playerName, _baseInitializer);
         _remotePlayer = new NetworkHandlerRemotePlayer(_playerPrefub, _baseInitializer);
