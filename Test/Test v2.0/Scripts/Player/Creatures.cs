@@ -12,9 +12,8 @@ public enum NamesOfCreatures
 public abstract class Creatures : MonoBehaviour
 {
     public abstract NamesOfCreatures CreaturesName { get; protected set; }
-    public abstract GameObject Player { get; protected set; }
     public abstract Weapons weapon { get; protected set; }
-    public abstract string PlayerName { get; protected set; }
+    public abstract string PlayerName { get; set; }
 
     //Specifications
     public abstract int Health { get; protected set; }
