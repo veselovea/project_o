@@ -7,6 +7,7 @@ using UnityEngine;
 public enum NamesOfCreatures
 {
     Carl,
+    CarlNet,
 }
 
 public abstract class Creatures : MonoBehaviour

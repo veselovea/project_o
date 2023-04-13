@@ -21,11 +21,13 @@ public abstract class Weapons : MonoBehaviour
     public abstract float Speed { get; protected set; }
     public virtual bool IsCanAttack { get; protected set; } = true;
 
+    public Creatures creature;
     public event Action<Hitted> OnAttackPlayer;
 
     private void Awake()
     {
         Anim = GetComponentInParent<Animator>();
+        creature = GetComponentInParent<Creatures>();
     }
 
     public virtual void Attack()
@@ -50,14 +52,6 @@ public abstract class Weapons : MonoBehaviour
         Hitted hit = new Hitted();
         hit.IsHit = false;
 
-        if (true)
-        {
-            hit.IsHit = true;
-            hit.Damage = Damage;
-            hit.Recipient = "QWE";
-        }
-        OnAttackPlayer?.Invoke(hit);
-
         if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
         {
             collider.GetComponent<Enemies>().TakeDamage(Damage);
@@ -70,7 +64,13 @@ public abstract class Weapons : MonoBehaviour
 
         if (collider.gameObject.tag == "Player" && IsCanAttack == false)
         {
-            collider.GetComponent<Creatures>().TakeDamage(Damage);
+            collider.GetComponent<RemotePlayerScript>().TakeDamage(Damage);
+
+            hit.IsHit = true;
+            hit.Damage = Damage;
+            hit.Recipient = creature.PlayerName;
         }
+
+        OnAttackPlayer?.Invoke(hit);
     }
 }
