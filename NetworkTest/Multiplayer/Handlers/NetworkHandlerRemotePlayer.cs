@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHandler
 {
@@ -102,10 +103,10 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
 
     public void Move(PlayerInfo playerInfo, string pos)
     {
+        PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
         ExecutableAction action = new ExecutableAction();
         action.Execute = () =>
         {
-            PlayerTransform transform = Serializer.GetObject<PlayerTransform>(pos);
             Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
             RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
             player.Prefub.transform.position = position;
@@ -116,12 +117,31 @@ public class NetworkHandlerRemotePlayer : ExecuteTasksInMainThread, IDBREceiveHa
 
     public void Attack(PlayerInfo playerInfo, string data)
     {
-
+        PlayerTransform transform = Serializer.GetObject<PlayerTransform>(data);
+        ExecutableAction action = new ExecutableAction();
+        action.Execute += () =>
+        {
+            Vector3 position = new Vector3(transform.PositionX, transform.PositionY, transform.PositionZ);
+            RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            player.Prefub.transform.position = position;
+            player.Prefub.transform.rotation = new Quaternion(transform.RotationX, transform.RotationY, transform.RotationZ, 1);
+        };
+        base.AddTaskToQueue(action);
     }
 
     public void HittedAttack(PlayerInfo playerInfo, string data)
     {
-
+        PlayerAttack attack = Serializer.GetObject<PlayerAttack>(data);
+        ExecutableAction action = new ExecutableAction();
+        action.Execute += () =>
+        {
+            Vector3 position = new Vector3(attack.Transform.PositionX, attack.Transform.PositionY, attack.Transform.PositionZ);
+            RemotePlayerData player = _remotePlayers.Find(x => x.Info.Name == playerInfo.Name);
+            player.Prefub.transform.position = position;
+            player.Prefub.transform.rotation = new Quaternion(attack.Transform.RotationX, attack.Transform.RotationY, attack.Transform.RotationZ, 1);
+            RemotePlayerData hittedPlayer = _remotePlayers.Find(x => x.Info.Name == attack.PlayerName);
+            hittedPlayer.Prefub.GetComponent<RemotePlayerScript>().TakeDamage(attack.Damage);
+        };
     }
 
     private void OnPlayerConnected(string playerName)

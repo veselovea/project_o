@@ -207,6 +207,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+<<<<<<< HEAD
+      - m_Target: {fileID: 298591334}
+        m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+=======
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: 
@@ -214,11 +223,16 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: 
+>>>>>>> 0bf2a26ffb7b96c6308332f2948401eedc8f05fe
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
+<<<<<<< HEAD
+        m_CallState: 1
+=======
         m_CallState: 2
+>>>>>>> 0bf2a26ffb7b96c6308332f2948401eedc8f05fe
 --- !u!114 &24435453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,7 +372,19 @@ MonoBehaviour:
   m_CharacterLimit: 30
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 298591334}
+        m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
+        m_MethodName: PlayerNameChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -376,7 +402,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 298591334}
+        m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
+        m_MethodName: PlayerNameChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -435,6 +473,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 259694450}
   m_CullTransparentMesh: 1
+--- !u!1 &298591333
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 298591335}
+  - component: {fileID: 298591334}
+  m_Layer: 0
+  m_Name: SceneHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &298591334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298591333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b1dc66b153ebb442a14fe7766658ecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerNameObject: {fileID: 259694450}
+--- !u!4 &298591335
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298591333}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &390273078
 GameObject:
   m_ObjectHideFlags: 0
@@ -601,7 +684,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 634059305}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 298591334}
+        m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
+        m_MethodName: Exit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
 --- !u!114 &634059305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -723,7 +818,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 675778067}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 298591334}
+        m_TargetAssemblyTypeName: StartSceneScript, Assembly-CSharp
+        m_MethodName: FastGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
 --- !u!114 &675778067
 MonoBehaviour:
   m_ObjectHideFlags: 0
