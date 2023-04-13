@@ -56,7 +56,6 @@ public abstract class Creatures : MonoBehaviour
             CurrentHealth = Health;
     }
 }
-
 public class Hitted
 {
     public bool IsHit { get; set; }

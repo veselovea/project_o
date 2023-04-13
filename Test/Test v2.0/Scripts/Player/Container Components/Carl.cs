@@ -33,12 +33,6 @@ public class Carl : Creatures
         {
             Weapons.Attack();
         }
-
-        //Health
-        if (Health <= 0)
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void FixedUpdate()
