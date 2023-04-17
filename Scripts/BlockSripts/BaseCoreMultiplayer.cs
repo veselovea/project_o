@@ -11,7 +11,7 @@ public class BaseCoreMultiplayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        blockList.AddRange(Resources.LoadAll<GameObject>("Blocks"));
+        blockList.AddRange(Resources.LoadAll<GameObject>("ResourcesBlocks"));
     }
 
     public void LoadFortress(Eblock[] blocks)
