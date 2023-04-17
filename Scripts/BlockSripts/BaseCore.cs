@@ -32,7 +32,7 @@ public class BaseCore : MonoBehaviour
 
     void Start()
     {
-        blockList.AddRange(Resources.LoadAll<GameObject>("Blocks"));
+        blockList.AddRange(Resources.LoadAll<GameObject>("ResourcesBlocks"));
         NetworkDataReceive.OnLoadFortress += LoadFortress;
     }
 

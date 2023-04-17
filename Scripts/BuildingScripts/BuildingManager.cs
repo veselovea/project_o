@@ -26,7 +26,7 @@ public class BuildingManager : MonoBehaviour
         baseSceneName = "DNA_Scene";
         caveSceneName = "ChunkTestScene";
         cameraSpeed = 10f;
-        blockPrefabs.AddRange(Resources.LoadAll<GameObject>("Blocks"));
+        blockPrefabs.AddRange(Resources.LoadAll<GameObject>("StructureBlock"));
         curentBlock = blockPrefabs[0];
         baseCore = GameObject.Find("BaseCore");
     }
