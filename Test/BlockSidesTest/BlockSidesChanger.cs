@@ -17,8 +17,9 @@ public class BlockSidesChanger : MonoBehaviour
 
     IEnumerator DelayedSetSides()
     {
-        yield return new WaitForSeconds(0.5f);
         CheckNeighbors();
+        yield return new WaitForSeconds(1f);
+        CheckSides();
     }
 
     public SpriteRenderer tR;
@@ -231,11 +232,11 @@ public class BlockSidesChanger : MonoBehaviour
             leftTop.GetComponentInParent<BlockSidesChanger>().CheckSides();
         }
 
-        if(top == null && topRight == null && right == null && rightBottom == null && bottom == null && bottomLeft == null && left == null && leftTop == null)
-        {
-            CheckSides();
-            ApplySides();
-        }
+        //if(top == null && topRight == null && right == null && rightBottom == null && bottom == null && bottomLeft == null && left == null && leftTop == null)
+        //{
+        //    CheckSides();
+        //    ApplySides();
+        //}
     }
 
     public void ApplySides()

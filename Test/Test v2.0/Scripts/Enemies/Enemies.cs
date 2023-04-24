@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum NamesOfEnemies
 {
@@ -24,28 +25,48 @@ public abstract class Enemies : MonoBehaviour
     public Weapons weapon;
     public Vector3 startPosition;
 
+    private NavMeshAgent Agent { get; set; }
+
     public void Start()
     {
         Player = GameObject.Find("Player");
         startPosition = this.transform.position;
+        StartCoroutine(ActivateAgent());
     }
     public void Awake()
     {
         Anim = GetComponent<Animator>();
         weapon = GetComponentInChildren<Weapons>();
     }
+
+    IEnumerator ActivateAgent()
+    {
+        yield return new WaitForSeconds(1f);
+        Agent = GetComponent<NavMeshAgent>();
+        Agent.updateUpAxis = false;
+        Agent.updateRotation = false;
+        Agent.enabled = true;
+    }
+
     public void Update()
     {
         //AI
         VisibilityDistance = Vector2.Distance(transform.position, Player.transform.position);
-
-        if (VisibilityDistance < 25)
+        if (Agent != null && Agent.enabled == true)
         {
-            transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
-        }
-        else
-        {
-            transform.position = Vector2.MoveTowards(this.transform.position, startPosition, Speed * Time.deltaTime);
+            if (VisibilityDistance < 25)
+            {
+                Agent.SetDestination(Player.transform.position);
+                //transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
+            }
+            else
+            {
+                if (Vector3.Distance(startPosition, transform.position) > 1)
+                {
+                    Agent.SetDestination(startPosition);
+                }
+                //transform.position = Vector2.MoveTowards(this.transform.position, startPosition, Speed * Time.deltaTime);
+            }
         }
 
         //Attack

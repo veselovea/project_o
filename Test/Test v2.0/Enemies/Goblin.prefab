@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 5939152108443943879}
   - component: {fileID: 8117129715748864721}
   - component: {fileID: 8117129715748864720}
+  - component: {fileID: 989608211628955596}
   m_Layer: 11
   m_Name: Goblin
   m_TagString: Enemy
@@ -217,6 +218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39691f05f525a541b46a43b324dcbcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weapon: {fileID: 0}
+  startPosition: {x: 0, y: 0, z: 0}
 --- !u!61 &8117129715748864721
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -264,6 +267,28 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!195 &989608211628955596
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8117129715748864732}
+  m_Enabled: 0
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 1
 --- !u!1001 &7418740480614154265
 PrefabInstance:
   m_ObjectHideFlags: 0
