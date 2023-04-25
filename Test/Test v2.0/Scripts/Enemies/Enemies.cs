@@ -39,7 +39,7 @@ public abstract class Enemies : MonoBehaviour
         weapon = GetComponentInChildren<Weapons>();
     }
 
-    IEnumerator ActivateAgent()
+    private IEnumerator ActivateAgent()
     {
         yield return new WaitForSeconds(1f);
         Agent = GetComponent<NavMeshAgent>();
@@ -48,19 +48,49 @@ public abstract class Enemies : MonoBehaviour
         Agent.enabled = true;
     }
 
+    bool isEnemyFound = false;
+
+    bool isDestinationSetOnCD = false;
+    private IEnumerator Cooldown()
+    {
+        isDestinationSetOnCD = true;
+        yield return new WaitForSeconds(1f);
+        isDestinationSetOnCD = false;
+    }
+
     public void Update()
     {
         //AI
         VisibilityDistance = Vector2.Distance(transform.position, Player.transform.position);
         if (Agent != null && Agent.enabled == true)
         {
+
+
             if (VisibilityDistance < 25)
             {
-                Agent.SetDestination(Player.transform.position);
-                //transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
+                if (isEnemyFound == false)
+                {
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, Player.transform.position - transform.position, Vector2.Distance(transform.position, Player.transform.position), LayerMask.GetMask("SolidBlock"));
+
+                    if (hit.collider == null)
+                    {
+                        isEnemyFound = true;
+                    }
+                }
+                else
+                {
+                    if (isDestinationSetOnCD == false)
+                    {
+                        Agent.SetDestination(Player.transform.position);
+                        StartCoroutine(Cooldown());
+                    }
+                    //transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
+                }
             }
             else
             {
+                isEnemyFound = false;
+
                 if (Vector3.Distance(startPosition, transform.position) > 1)
                 {
                     Agent.SetDestination(startPosition);

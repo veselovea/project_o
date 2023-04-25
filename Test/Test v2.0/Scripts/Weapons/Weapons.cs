@@ -52,12 +52,12 @@ public abstract class Weapons : MonoBehaviour
         Hitted hit = new Hitted();
         hit.IsHit = false;
 
-        if (collider.gameObject.tag == "Enemy" && IsCanAttack == false)
+        if (transform.parent.parent.tag != "Enemy" && collider.gameObject.tag == "Enemy" && IsCanAttack == false)
         {
             collider.GetComponent<Enemies>().TakeDamage(Damage);
         }
 
-        if (collider.gameObject.tag == "Crusher" && IsCanAttack == false)
+        if (transform.parent.parent.tag != "Crusher" && collider.gameObject.tag == "Crusher" && IsCanAttack == false)
         {
             collider.GetComponent<Crushers>().TakeDamage(Damage);
         }
