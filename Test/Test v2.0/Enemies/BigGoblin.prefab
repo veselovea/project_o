@@ -300,6 +300,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BigBat
       objectReference: {fileID: 0}
+    - target: {fileID: 6692497551463781240, guid: 906b266c8ed303e4fb5ca68baed390ac, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7269746101304897547, guid: 906b266c8ed303e4fb5ca68baed390ac, type: 3}
       propertyPath: m_RootOrder
       value: 0

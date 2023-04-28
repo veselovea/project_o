@@ -19,10 +19,13 @@ public class Carl : Creatures
     public override float Speed { get; protected set; } = 5;
     public override float VisibilityDistance { get; protected set; } = 0;
 
+    private Rigidbody2D body;
+
 
     private void Start()
     {
         Weapons = GetComponentInChildren<Weapons>();
+        body = GetComponent<Rigidbody2D>();
     }
 
     public void Update()
@@ -47,6 +50,12 @@ public class Carl : Creatures
         else if (moveDelta.x < 0)
             transform.localScale = new Vector3(-1, 1, 0);
 
-        transform.Translate(Speed * moveDelta * Time.deltaTime);
+        //body.AddForce(moveDelta * 5, ForceMode2D.Force);
+
+        body.velocity = moveDelta * 5;
+
+        if (moveDelta == Vector3.zero)
+            body.velocity = Vector3.zero;
+        //transform.Translate(Speed * moveDelta * Time.deltaTime);
     }
 }

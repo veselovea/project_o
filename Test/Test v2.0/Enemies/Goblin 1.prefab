@@ -300,6 +300,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Axe
       objectReference: {fileID: 0}
+    - target: {fileID: 6692497551463781240, guid: fb5caa50bdc36874089c3420786407bc, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7269746101304897547, guid: fb5caa50bdc36874089c3420786407bc, type: 3}
       propertyPath: m_RootOrder
       value: 0

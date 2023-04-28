@@ -64,11 +64,15 @@ public abstract class Weapons : MonoBehaviour
 
         if (collider.gameObject.tag == "Player" && IsCanAttack == false)
         {
-            collider.GetComponent<RemotePlayerScript>().TakeDamage(Damage);
+            RemotePlayerScript rps = collider.GetComponent<RemotePlayerScript>();
+            if (rps != null)
+            {
+                rps.TakeDamage(Damage);
 
-            hit.IsHit = true;
-            hit.Damage = Damage;
-            hit.Recipient = creature.PlayerName;
+                hit.IsHit = true;
+                hit.Damage = Damage;
+                hit.Recipient = creature.PlayerName;
+            }
         }
 
         OnAttackPlayer?.Invoke(hit);
