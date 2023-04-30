@@ -43,6 +43,7 @@ abstract public class ResourceBlock : MonoBehaviour
             {
                 transform.GetComponent<Collider2D>().enabled = false;
                 transform.parent.GetComponent<BlockSidesChanger>().CheckNeighbors();
+                GameObject.Find("GameObject").GetComponent<CaveGenerator>().DeleteBlock(transform.parent.gameObject);
                 GameObject.Find("NavMesh").GetComponent<NavMeshGenerator>().GenerateNavMesh();
             }
             catch { }

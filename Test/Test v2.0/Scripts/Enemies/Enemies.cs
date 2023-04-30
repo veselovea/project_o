@@ -92,7 +92,12 @@ public abstract class Enemies : MonoBehaviour
                             transform.eulerAngles = new Vector3(0, 0, 0);
                         }
 
-                        Agent.SetDestination(Player.transform.position);
+                        try
+                        {
+                            Agent.SetDestination(Player.transform.position);
+                        }
+                        catch { }
+
                         StartCoroutine(Cooldown());
                     }
                     //transform.position = Vector2.MoveTowards(this.transform.position, Player.transform.position, Speed * Time.deltaTime);
@@ -104,7 +109,11 @@ public abstract class Enemies : MonoBehaviour
 
                 if (Vector3.Distance(startPosition, transform.position) > 1)
                 {
-                    Agent.SetDestination(startPosition);
+                    try
+                    {
+                        Agent.SetDestination(startPosition);
+                    }
+                    catch { }
                 }
                 //transform.position = Vector2.MoveTowards(this.transform.position, startPosition, Speed * Time.deltaTime);
             }

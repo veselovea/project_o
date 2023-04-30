@@ -77,6 +77,28 @@ public class CaveGenerator : MonoBehaviour
         }
     }
 
+    public void DeleteBlock(GameObject block)
+    {
+        Vector3 blockPosirion = block.transform.position;
+
+        int ceiledX = (int)Math.Ceiling(blockPosirion.x / 10);
+        int ceiledY = (int)Math.Ceiling(blockPosirion.y / 10);
+
+        if (blockPosirion.x <= 0)
+        {
+            ceiledX--;
+        }
+
+        if (blockPosirion.y <= 0)
+        {
+            ceiledY--;
+        }
+
+        ChunkObject currentBlockChunck = GeneratedChunks.Find(c => c.ChunkPosition.Item1 == ceiledX && c.ChunkPosition.Item2 == ceiledY);
+
+        currentBlockChunck.ChunkBlocks.Find(b => b.Position == block.transform.position).Original = null;
+    }
+
     IEnumerator CoolDown()
     {
         isCooldown = true;
@@ -305,10 +327,6 @@ public class CaveGenerator : MonoBehaviour
             if (block.Clone != null)
             {
                 Destroy(block.Clone);
-            }
-            else
-            {
-                block.Original = null;
             }
         }
 

@@ -5,8 +5,8 @@ using UnityEngine;
 public class PCamera : MonoBehaviour
 {
     public Transform Player;
-    private float x = 5f;
-    private float y = 2f;
+    private float x = 0f;
+    private float y = 0f;
 
     private void LateUpdate()
     {
