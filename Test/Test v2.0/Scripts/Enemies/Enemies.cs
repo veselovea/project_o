@@ -81,6 +81,17 @@ public abstract class Enemies : MonoBehaviour
                 {
                     if (isDestinationSetOnCD == false)
                     {
+                        Vector3 playerLocalPosition = Player.transform.localPosition;
+
+                        if(playerLocalPosition.x < 0)
+                        {
+                            transform.eulerAngles = new Vector3(0,180,0);
+                        }
+                        else
+                        {
+                            transform.eulerAngles = new Vector3(0, 0, 0);
+                        }
+
                         Agent.SetDestination(Player.transform.position);
                         StartCoroutine(Cooldown());
                     }

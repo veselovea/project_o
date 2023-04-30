@@ -97,9 +97,10 @@ GameObject:
   - component: {fileID: 7918182368013037751}
   - component: {fileID: 2032798094516957073}
   - component: {fileID: 494925562470601150}
+  - component: {fileID: 6819863493367823828}
   m_Layer: 23
-  m_Name: Square
-  m_TagString: Untagged
+  m_Name: HitBox
+  m_TagString: Block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -234,6 +235,18 @@ MonoBehaviour:
   m_Area: 1
   m_IgnoreFromBuild: 0
   m_AffectedAgents: ffffffff
+--- !u!114 &6819863493367823828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3292391092727021447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b44e2c17eaa403a45b690924058be39a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5644317657472449091
 GameObject:
   m_ObjectHideFlags: 0

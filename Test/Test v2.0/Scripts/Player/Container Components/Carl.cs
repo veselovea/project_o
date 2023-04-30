@@ -11,6 +11,7 @@ public class Carl : Creatures
     public override string PlayerName { get; set; }
     public override Weapons weapon { get; protected set; }
     public Weapons Weapons { get; protected set; }
+    public Tools Tool { get; protected set; }
     public Vector3 moveDelta { get; protected set; }
 
     //Specifications
@@ -25,6 +26,7 @@ public class Carl : Creatures
     private void Start()
     {
         Weapons = GetComponentInChildren<Weapons>();
+        Tool = GetComponentInChildren<Tools>();
         body = GetComponent<Rigidbody2D>();
     }
 
@@ -33,7 +35,14 @@ public class Carl : Creatures
         //Attack
         if (Input.GetMouseButton(0))
         {
-            Weapons.Attack();
+            if (Weapons != null)
+            {
+                Weapons.Attack();
+            }
+            else if(Tool != null)
+            {
+                Tool.Attack();
+            }
         }
     }
 

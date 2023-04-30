@@ -38,7 +38,16 @@ abstract public class ResourceBlock : MonoBehaviour
         if (Durability < 0)
         {
             OnBreakBlock?.Invoke(gameObject);
-            Destroy(gameObject);
+
+            try
+            {
+                transform.GetComponent<Collider2D>().enabled = false;
+                transform.parent.GetComponent<BlockSidesChanger>().CheckNeighbors();
+                GameObject.Find("NavMesh").GetComponent<NavMeshGenerator>().GenerateNavMesh();
+            }
+            catch { }
+
+            Destroy(transform.parent.gameObject);
             return new ResDrop(Type, Ñount);
         }
         return null;

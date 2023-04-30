@@ -32,7 +32,10 @@ public abstract class Creatures : MonoBehaviour
     private void Awake()
     {
         weapon = GetComponentInChildren<Weapons>();
-        weapon.OnAttackPlayer += AttackCallback;
+        if (weapon != null)
+        {
+            weapon.OnAttackPlayer += AttackCallback;
+        }
     }
 
     public void AttackCallback(Hitted hit)

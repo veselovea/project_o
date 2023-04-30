@@ -39,8 +39,8 @@ public class CaveGenerator : MonoBehaviour
     {
         new Vector3(50,50,0),     //1
         new Vector3(-50,50,0),    //2
-        new Vector3(50,-50,0),   //3
-        new Vector3(-50,-50,0),    //4
+        new Vector3(50,-50,0),    //3
+        new Vector3(-50,-50,0),   //4
     };
 
     public GameObject commonStoneBlock;
@@ -305,6 +305,10 @@ public class CaveGenerator : MonoBehaviour
             if (block.Clone != null)
             {
                 Destroy(block.Clone);
+            }
+            else
+            {
+                block.Original = null;
             }
         }
 

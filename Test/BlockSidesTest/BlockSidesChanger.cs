@@ -181,7 +181,7 @@ public class BlockSidesChanger : MonoBehaviour
         applyCD = false;
     }
 
-    private void CheckNeighbors()
+    public void CheckNeighbors()
     {
         Collider2D top = Physics2D.OverlapCircle(transform.TransformPoint(new Vector2(0, 1)), 0f, LayerMask.GetMask("SolidBlock"));
         Collider2D topRight = Physics2D.OverlapCircle(transform.TransformPoint(new Vector2(1, 1)), 0f, LayerMask.GetMask("SolidBlock"));
