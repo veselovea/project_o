@@ -81,9 +81,16 @@ public abstract class Enemies : MonoBehaviour
                 {
                     if (isDestinationSetOnCD == false)
                     {
-                        Vector3 playerLocalPosition = Player.transform.localPosition;
+                        Vector3 playerLocalPosition = transform.InverseTransformPoint(Player.transform.position);
 
-                        if(playerLocalPosition.x < 0)
+                        float playerX = playerLocalPosition.x;
+
+                        if(transform.eulerAngles.y == 180)
+                        {
+                            playerX *= -1;
+                        }
+
+                        if (playerX < 0)
                         {
                             transform.eulerAngles = new Vector3(0,180,0);
                         }
@@ -94,7 +101,10 @@ public abstract class Enemies : MonoBehaviour
 
                         try
                         {
-                            Agent.SetDestination(Player.transform.position);
+                            if (Agent.isOnNavMesh)
+                            {
+                                Agent.SetDestination(Player.transform.position);
+                            }
                         }
                         catch { }
 
@@ -111,7 +121,10 @@ public abstract class Enemies : MonoBehaviour
                 {
                     try
                     {
-                        Agent.SetDestination(startPosition);
+                        if (Agent.isOnNavMesh)
+                        {
+                            Agent.SetDestination(startPosition);
+                        }
                     }
                     catch { }
                 }

@@ -27,6 +27,8 @@ public class BlockSidesChanger : MonoBehaviour
     public SpriteRenderer bR;
     public SpriteRenderer bL;
 
+    public string blockName;
+
     public List<Sprite> sides;
 
     private string tR4 = "";
@@ -241,40 +243,40 @@ public class BlockSidesChanger : MonoBehaviour
 
     public void ApplySides()
     {
-        Sprite sideTR = sides.Find(s => s.name == $"Stone({tR8})");
+        Sprite sideTR = sides.Find(s => s.name == $"{blockName}({tR8})");
         if(sideTR == null)
         {
-            sideTR = sides.Find(s => s.name == $"Stone({tR4})");
+            sideTR = sides.Find(s => s.name == $"{blockName}({tR4})");
             if(sideTR == null)
             {
                 sideTR = sides[0];
             }
         }
 
-        Sprite sideTL = sides.Find(s => s.name == $"Stone({tL8})");
+        Sprite sideTL = sides.Find(s => s.name == $"{blockName}({tL8})");
         if (sideTL == null)
         {
-            sideTL = sides.Find(s => s.name == $"Stone({tL4})");
+            sideTL = sides.Find(s => s.name == $"{blockName}({tL4})");
             if (sideTL == null)
             {
                 sideTL = sides[0];
             }
         }
 
-        Sprite sideBR = sides.Find(s => s.name == $"Stone({bR8})");
+        Sprite sideBR = sides.Find(s => s.name == $"{blockName}({bR8})");
         if (sideBR == null)
         {
-            sideBR = sides.Find(s => s.name == $"Stone({bR4})");
+            sideBR = sides.Find(s => s.name == $"{blockName}({bR4})");
             if (sideBR == null)
             {
                 sideBR = sides[0];
             }
         }
 
-        Sprite sideBL = sides.Find(s => s.name == $"Stone({bL8})");
+        Sprite sideBL = sides.Find(s => s.name == $"{blockName}({bL8})");
         if (sideBL == null)
         {
-            sideBL = sides.Find(s => s.name == $"Stone({bL4})");
+            sideBL = sides.Find(s => s.name == $"{blockName}({bL4})");
             if (sideBL == null)
             {
                 sideBL = sides[0];
