@@ -389,6 +389,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: StoneFloor
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 1570
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b906286cc9662e4ebd718f24f45f23c
+      internalID: 755796486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -407,6 +428,7 @@ TextureImporter:
       Stone(BELE): -2008207988
       Stone(REBE): -1333569380
       Stone(BELF): 435571356
+      StoneFloor: 755796486
       Stone(TELE): 995971230
       Stone(TFRE): 1518863711
       Stone(TERF): -460935734

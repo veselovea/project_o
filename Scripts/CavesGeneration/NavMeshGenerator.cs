@@ -23,4 +23,15 @@ public class NavMeshGenerator : MonoBehaviour
     {
         NavigationSurface.BuildNavMesh();
     }
+
+    public void DelayedGenerateNavMesh(float seconds)
+    {
+        StartCoroutine(DGNM(seconds));
+    }
+
+    private IEnumerator DGNM(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        NavigationSurface.BuildNavMesh();
+    }
 }

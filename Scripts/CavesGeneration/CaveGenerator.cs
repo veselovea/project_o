@@ -226,7 +226,7 @@ public class CaveGenerator : MonoBehaviour
 
     IEnumerator RegenerateNavMesh()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.5f);
 
         NMG.GenerateNavMesh();
     }
