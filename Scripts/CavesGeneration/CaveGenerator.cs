@@ -226,7 +226,7 @@ public class CaveGenerator : MonoBehaviour
 
     IEnumerator RegenerateNavMesh()
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
 
         NMG.GenerateNavMesh();
     }
@@ -319,12 +319,12 @@ public class CaveGenerator : MonoBehaviour
         {
             counter++;
 
-            //if(counter % 50 == 0)
-            //{
-            //    yield return new WaitForSeconds(0.1f);
-            //}
+            if (counter % 2 == 0)
+            {
+                yield return new WaitForSeconds(0.001f);
+            }
 
-            yield return new WaitForSeconds(0.001f);
+            //yield return new WaitForSeconds(0.001f);
 
             if (block.Clone != null)
             {
@@ -502,12 +502,12 @@ public class CaveGenerator : MonoBehaviour
         {
             counter++;
 
-            //if(counter % 50 == 0)
-            //{
-            //    yield return new WaitForSeconds(0.1f);
-            //}
+            if (counter % 2 == 0)
+            {
+                yield return new WaitForSeconds(0.001f);
+            }
 
-            yield return new WaitForSeconds(0.001f);
+            //yield return new WaitForSeconds(0.001f);
 
             if (block.Original != null)
             {

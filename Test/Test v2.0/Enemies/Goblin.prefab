@@ -52,7 +52,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -70,8 +70,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1542161953
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -2006901494, guid: 7394b9561a354dc4494fb80dea19eb9f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -344,6 +344,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 6315024992822931764, guid: 90d681ce2b89897499c7d68455677d0e, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6315024992822931764, guid: 90d681ce2b89897499c7d68455677d0e, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1542161953
+      objectReference: {fileID: 0}
+    - target: {fileID: 6315024992822931764, guid: 90d681ce2b89897499c7d68455677d0e, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
     - target: {fileID: 6692497551463781240, guid: 90d681ce2b89897499c7d68455677d0e, type: 3}
       propertyPath: m_IsTrigger
       value: 1

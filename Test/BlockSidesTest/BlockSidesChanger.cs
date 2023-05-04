@@ -243,6 +243,8 @@ public class BlockSidesChanger : MonoBehaviour
 
     public void ApplySides()
     {
+        int nullCounter = 0;
+
         Sprite sideTR = sides.Find(s => s.name == $"{blockName}({tR8})");
         if(sideTR == null)
         {
@@ -250,6 +252,7 @@ public class BlockSidesChanger : MonoBehaviour
             if(sideTR == null)
             {
                 sideTR = sides[0];
+                nullCounter++;
             }
         }
 
@@ -260,6 +263,7 @@ public class BlockSidesChanger : MonoBehaviour
             if (sideTL == null)
             {
                 sideTL = sides[0];
+                nullCounter++;
             }
         }
 
@@ -270,6 +274,7 @@ public class BlockSidesChanger : MonoBehaviour
             if (sideBR == null)
             {
                 sideBR = sides[0];
+                nullCounter++;
             }
         }
 
@@ -280,6 +285,7 @@ public class BlockSidesChanger : MonoBehaviour
             if (sideBL == null)
             {
                 sideBL = sides[0];
+                nullCounter++;
             }
         }
 
@@ -287,5 +293,20 @@ public class BlockSidesChanger : MonoBehaviour
         tL.sprite = sideTL;
         bR.sprite = sideBR;
         bL.sprite = sideBL;
+
+        if(nullCounter == 4)
+        {
+            tR.sortingLayerName = "Hidden";
+            tL.sortingLayerName = "Hidden";
+            bR.sortingLayerName = "Hidden";
+            bL.sortingLayerName = "Hidden";
+        }
+        else
+        {
+            tR.sortingLayerName = "SolidBlock";
+            tL.sortingLayerName = "SolidBlock";
+            bR.sortingLayerName = "SolidBlock";
+            bL.sortingLayerName = "SolidBlock";
+        }
     }
 }
