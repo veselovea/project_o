@@ -133,7 +133,7 @@ public abstract class Enemies : MonoBehaviour
         }
 
         //Attack
-        if (VisibilityDistance < 4)
+        if (VisibilityDistance < 4 && isEnemyFound)
         {
             weapon.Attack();
         }
