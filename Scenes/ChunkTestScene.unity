@@ -633,9 +633,9 @@ MonoBehaviour:
   Resources:
   - {fileID: 7109307304986196898, guid: 92e0d45708c488e4f9e06c0b57868081, type: 3}
   - {fileID: 7109307304986196898, guid: 1fe34a4027da02945ae8abbe81ae4f2c, type: 3}
-  Enemies:
-  - {fileID: 8117129715748864732, guid: 0fc145d6ef0c7e04a84a5786ab1ef78b, type: 3}
+  AddEnemies:
   - {fileID: 8117129715748864732, guid: 13c7a6b524951a2439239642e10227d4, type: 3}
+  - {fileID: 8117129715748864732, guid: 0fc145d6ef0c7e04a84a5786ab1ef78b, type: 3}
 --- !u!114 &1517621297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1366,6 +1366,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2367715902717194163, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 524290619, guid: 7394b9561a354dc4494fb80dea19eb9f, type: 3}
+    - target: {fileID: 2367715902717194163, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}
       propertyPath: m_SortingLayer
       value: 3
       objectReference: {fileID: 0}
@@ -1440,6 +1444,14 @@ PrefabInstance:
     - target: {fileID: 5783594436028341268, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6540727089676781492, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6540727089676781492, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5ad40b2e2218c345bf61624364d4c2b, type: 3}

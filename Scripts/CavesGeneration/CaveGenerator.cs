@@ -47,10 +47,17 @@ public class CaveGenerator : MonoBehaviour
     public GameObject chunkFloor;
     public GameObject caveCollider;
     public GameObject resourceCollider;
+    
 
     public List<GameObject> POIs = new();
     public List<GameObject> Resources = new();
-    public List<GameObject> Enemies = new();
+    public List<GameObject> AddEnemies = new();
+    public List<WeightedObject> Enemies { get; set; } = new();
+    private List<int> EnemyWeights { get; set; } = new List<int>
+    {
+        900,
+        100
+    };
 
     // Start is called before the first frame update
     void Awake()
@@ -60,6 +67,11 @@ public class CaveGenerator : MonoBehaviour
 
         //GameObject firstCave = Instantiate(caveCollider, Vector3.zero, Quaternion.identity);
         //firstCave.GetComponent<CaveColliderRandomizer>().GenerateColliderPoints();
+
+        for (int i = 0; i < AddEnemies.Count; i++)
+        {
+            Enemies.Add(new WeightedObject(AddEnemies[i], EnemyWeights[i]));
+        }
 
         lastCheckCameraPosition = Tuple.Create(0, 0);
     }
@@ -455,10 +467,36 @@ public class CaveGenerator : MonoBehaviour
 
                     if (roll >= 99)
                     {
+                        int totalWeight = 0;
+
+                        foreach (WeightedObject weightedEnemy in Enemies)
+                        {
+                            totalWeight += weightedEnemy.Weight;
+                        }
+
+                        roll = UnityEngine.Random.Range(1, totalWeight + 1);
+
+                        Debug.Log("===============================================================" + roll);
+
+                        GameObject EnemyToSpawn = null;
+
+                        totalWeight = 0;
+
+                        foreach (WeightedObject enemyToChoose in Enemies)
+                        {
+                            totalWeight += enemyToChoose.Weight;
+                            if (roll <= totalWeight)
+                            {
+                                EnemyToSpawn = enemyToChoose.Object;
+                                break;
+                            }
+                        }
+
                         int enemyNumber = UnityEngine.Random.Range(0, Enemies.Count);
 
                         enemy = new();
-                        enemy.Original = Enemies[enemyNumber];
+                        //enemy.Original = Enemies[enemyNumber].Object;
+                        enemy.Original = EnemyToSpawn;
                         enemy.Position = new Vector3(startPointX, startPointY, 0);
 
                         newChunk.Enemies.Add(enemy);
