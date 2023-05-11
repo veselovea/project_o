@@ -11,6 +11,8 @@ public class Carl : Creatures
     public override string PlayerName { get; set; }
     public override Weapons weapon { get; protected set; }
     public Weapons Weapons { get; protected set; }
+
+    private Transform weaponHolder;
     public Tools Tool { get; protected set; }
     public Vector3 moveDelta { get; protected set; }
 
@@ -25,6 +27,7 @@ public class Carl : Creatures
 
     private void Start()
     {
+        weaponHolder = transform.Find("WeaponHolder");
         Weapons = GetComponentInChildren<Weapons>();
         Tool = GetComponentInChildren<Tools>();
         body = GetComponent<Rigidbody2D>();
@@ -35,14 +38,37 @@ public class Carl : Creatures
         //Attack
         if (Input.GetMouseButton(0))
         {
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = 0;
+
             if (Weapons != null)
             {
                 Weapons.Attack();
+                RotateWeaponTowardsAttackDirection();
             }
             else if(Tool != null)
             {
                 Tool.Attack();
+                RotateWeaponTowardsAttackDirection();
             }
+        }
+        else
+        {
+            weaponHolder.eulerAngles = Vector3.zero;
+        }
+    }
+
+    private void RotateWeaponTowardsAttackDirection()
+    {
+        if(transform.localScale.x == 1)
+        {
+            weaponHolder.rotation = Quaternion.LookRotation(Vector3.forward, Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position);
+            weaponHolder.eulerAngles += new Vector3(0, 0, 90);
+        }
+        else
+        {
+            weaponHolder.rotation = Quaternion.LookRotation(Vector3.forward, Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position);
+            weaponHolder.eulerAngles += new Vector3(0, 0, -90);
         }
     }
 

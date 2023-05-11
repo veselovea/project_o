@@ -238,7 +238,7 @@ public class CaveGenerator : MonoBehaviour
 
     IEnumerator RegenerateNavMesh()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.5f);
 
         NMG.GenerateNavMesh();
     }
@@ -644,7 +644,7 @@ public class CaveGenerator : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 6; i++)
         {
             int roll = UnityEngine.Random.Range(0, 100);
 
