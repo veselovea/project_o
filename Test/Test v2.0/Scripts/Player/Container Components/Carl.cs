@@ -33,13 +33,32 @@ public class Carl : Creatures
         body = GetComponent<Rigidbody2D>();
     }
 
+    bool isAttacking = false;
+
     public void Update()
     {
         //Attack
         if (Input.GetMouseButton(0))
         {
-            Vector3 mousePos = Input.mousePosition;
+            isAttacking = true;
+
+
+
+            Vector3 mousePos = transform.InverseTransformPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             mousePos.z = 0;
+
+            if (mousePos.x < 0)
+            {
+                if (transform.localScale.x == 1)
+                {
+                    transform.localScale = new Vector3(-1, 1, 0);
+                }
+                else
+                {
+                    transform.localScale = Vector3.one;
+                }
+            }
+
 
             if (Weapons != null)
             {
@@ -54,6 +73,7 @@ public class Carl : Creatures
         }
         else
         {
+            isAttacking = false;
             weaponHolder.eulerAngles = Vector3.zero;
         }
     }
@@ -80,10 +100,13 @@ public class Carl : Creatures
 
         moveDelta = new Vector3(x, y, 0);
 
-        if (moveDelta.x > 0)
-            transform.localScale = Vector3.one;
-        else if (moveDelta.x < 0)
-            transform.localScale = new Vector3(-1, 1, 0);
+        if (isAttacking == false)
+        {
+            if (moveDelta.x > 0)
+                transform.localScale = Vector3.one;
+            else if (moveDelta.x < 0)
+                transform.localScale = new Vector3(-1, 1, 0);
+        }
 
         //body.AddForce(moveDelta * 5, ForceMode2D.Force);
 

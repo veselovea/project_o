@@ -331,7 +331,7 @@ public class CaveGenerator : MonoBehaviour
         {
             counter++;
 
-            if (counter % 2 == 0)
+            if (counter % 5 == 0)
             {
                 yield return new WaitForSeconds(0.001f);
             }
@@ -540,7 +540,7 @@ public class CaveGenerator : MonoBehaviour
         {
             counter++;
 
-            if (counter % 2 == 0)
+            if (counter % 5 == 0)
             {
                 yield return new WaitForSeconds(0.001f);
             }

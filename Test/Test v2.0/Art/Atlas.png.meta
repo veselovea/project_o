@@ -113,6 +113,18 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -5420,7 +5432,6 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       Atlas_46: 2045373938
-      Atlas_221: -1031503287
       Atlas_229: 756396469
       Atlas_18: -562921863
       Atlas_33: 1569429255
@@ -5474,10 +5485,10 @@ TextureImporter:
       Atlas_78: 195353542
       Atlas_102: -216381678
       Atlas_240: -742899988
-      Atlas_156: 333802739
-      Atlas_241: 565368066
-      Atlas_44: 915512302
       Atlas_144: 171769274
+      Atlas_156: 333802739
+      Atlas_44: 915512302
+      Atlas_241: 565368066
       Atlas_164: 1168859244
       Atlas_113: 938071616
       Atlas_15: 1172805576
@@ -5526,12 +5537,12 @@ TextureImporter:
       Atlas_171: 154764329
       Atlas_0: -1934395663
       Atlas_181: 1487008078
-      Atlas_22: -590711243
       Atlas_28: 1836776760
       Atlas_136: 2127351820
       Atlas_31: 1968453168
-      Atlas_230: 1090115991
+      Atlas_22: -590711243
       Atlas_151: -161224818
+      Atlas_230: 1090115991
       Atlas_17: -368233792
       Atlas_183: -1471229115
       Atlas_138: -933961408
@@ -5663,13 +5674,14 @@ TextureImporter:
       Atlas_227: -1757900590
       Atlas_57: -1045957398
       Atlas_67: -160212779
-      Atlas_128: 36350683
+      Atlas_221: -1031503287
+      Atlas_179: 218214611
       Atlas_9: 980138483
-      Atlas_175: 1596866899
       Atlas_139: 216564641
+      Atlas_128: 36350683
+      Atlas_175: 1596866899
       Atlas_237: -933528160
       Atlas_170: 414788328
-      Atlas_179: 218214611
       Atlas_72: 1592596841
   spritePackingTag: 
   pSDRemoveMatte: 0
