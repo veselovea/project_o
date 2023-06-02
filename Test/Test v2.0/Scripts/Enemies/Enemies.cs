@@ -45,7 +45,7 @@ public abstract class Enemies : MonoBehaviour
         Agent = GetComponent<NavMeshAgent>();
         Agent.updateUpAxis = false;
         Agent.updateRotation = false;
-        Agent.enabled = true;
+        Agent.enabled = false;
     }
 
     bool isEnemyFound = false;
@@ -62,11 +62,11 @@ public abstract class Enemies : MonoBehaviour
     {
         //AI
         VisibilityDistance = Vector2.Distance(transform.position, Player.transform.position);
-        if (Agent != null && Agent.enabled == true)
+        if (Agent != null)
         {
 
 
-            if (VisibilityDistance < 25)
+            if (VisibilityDistance < 15)
             {
                 if (isEnemyFound == false)
                 {
@@ -75,6 +75,11 @@ public abstract class Enemies : MonoBehaviour
                     if (hit.collider == null)
                     {
                         isEnemyFound = true;
+
+                        if (Agent.enabled == false)
+                        {
+                            Agent.enabled = true;
+                        }
                     }
                 }
                 else
@@ -127,6 +132,10 @@ public abstract class Enemies : MonoBehaviour
                         }
                     }
                     catch { }
+                }
+                else if (Agent.enabled == true)
+                {
+                    Agent.enabled = false;
                 }
                 //transform.position = Vector2.MoveTowards(this.transform.position, startPosition, Speed * Time.deltaTime);
             }

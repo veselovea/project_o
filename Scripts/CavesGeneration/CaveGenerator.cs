@@ -436,7 +436,9 @@ public class CaveGenerator : MonoBehaviour
                 {
                     POIBuilder poi = hitPOICollider.GetComponent<POIBuilder>();
 
-                    foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition))
+                    Tuple<List<Tuple<Vector3, GameObject>>, List<Tuple<Vector3, GameObject>>> POIchunk = poi.BuildInChunk(chunkPosition);
+
+                    foreach (Tuple<Vector3, GameObject> POIblock in POIchunk.Item1)
                     {
                         chunkBlock = new();
 
@@ -445,6 +447,17 @@ public class CaveGenerator : MonoBehaviour
                         chunkBlock.Original = POIblock.Item2;
 
                         newChunk.ChunkBlocks.Add(chunkBlock);
+                    }
+
+                    foreach (Tuple<Vector3, GameObject> POImob in POIchunk.Item2)
+                    {
+                        enemy = new();
+
+                        enemy.Position = POImob.Item1;
+
+                        enemy.Original = POImob.Item2;
+
+                        newChunk.Enemies.Add(enemy);
                     }
                 }
 
@@ -475,8 +488,6 @@ public class CaveGenerator : MonoBehaviour
                         }
 
                         roll = UnityEngine.Random.Range(1, totalWeight + 1);
-
-                        Debug.Log("===============================================================" + roll);
 
                         GameObject EnemyToSpawn = null;
 

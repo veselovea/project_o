@@ -411,7 +411,7 @@ public class LegacyCaveGenerator : MonoBehaviour
                     POIBuilder poi = hitCollider.GetComponent<POIBuilder>();
                     if (poi != null)
                     {
-                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition))
+                        foreach (Tuple<Vector3, GameObject> POIblock in poi.BuildInChunk(chunkPosition).Item1)
                         {
                             chunkBlock = new();
 
