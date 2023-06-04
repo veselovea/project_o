@@ -585,23 +585,23 @@ public class CaveGenerator : MonoBehaviour
         if(startX < 0)
         {
             startX += 10;
-            endX = startX + 80;
+            endX = startX + 90;
         }
         else
         {
             startX -= 10;
-            endX = startX - 80;
+            endX = startX - 90;
         }
 
         if(startY < 0)
         {
             startY += 10;
-            endY = startY + 80;
+            endY = startY + 90;
         }
         else
         {
             startY -= 10;
-            endY = startY - 80;
+            endY = startY - 90;
         }
 
         EnvironmentObject newArea = new();
@@ -610,7 +610,7 @@ public class CaveGenerator : MonoBehaviour
         newArea.POIs = new();
         newArea.Resources = new();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
             int roll = UnityEngine.Random.Range(0, 100);
 
@@ -631,7 +631,7 @@ public class CaveGenerator : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 10; i++)
         {
             int roll = UnityEngine.Random.Range(0, 100);
 
@@ -639,23 +639,28 @@ public class CaveGenerator : MonoBehaviour
             {
                 Vector3 position = new Vector3(UnityEngine.Random.Range((int)startX, (int)endX), UnityEngine.Random.Range((int)startY, (int)endY), 0);
 
-                int POInumber = UnityEngine.Random.Range(0, POIs.Count);
+                Collider2D hitPOICollider = Physics2D.OverlapCircle(position, 0f, LayerMask.GetMask("POIs"));
 
-                POI newPOI = new();
+                if (hitPOICollider == null)
+                {
+                    int POInumber = UnityEngine.Random.Range(0, POIs.Count);
 
-                newPOI.Original = POIs[POInumber];
-                newPOI.Position = position;
-                newPOI.Clone = Instantiate(newPOI.Original, newPOI.Position, Quaternion.identity);
-                POIBuilder poiBuilder = newPOI.Clone.GetComponent<POIBuilder>();
-                poiBuilder.DetermineBlocks();
-                newPOI.Blocks = poiBuilder.Blocks;
-                newPOI.AffectedChunks = poiBuilder.AffectedChunks;
+                    POI newPOI = new();
 
-                newArea.POIs.Add(newPOI);
+                    newPOI.Original = POIs[POInumber];
+                    newPOI.Position = position;
+                    newPOI.Clone = Instantiate(newPOI.Original, newPOI.Position, Quaternion.identity);
+                    POIBuilder poiBuilder = newPOI.Clone.GetComponent<POIBuilder>();
+                    poiBuilder.DetermineBlocks();
+                    newPOI.Blocks = poiBuilder.Blocks;
+                    newPOI.AffectedChunks = poiBuilder.AffectedChunks;
+
+                    newArea.POIs.Add(newPOI);
+                }
             }
         }
 
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 20; i++)
         {
             int roll = UnityEngine.Random.Range(0, 100);
 
