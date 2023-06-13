@@ -630,6 +630,7 @@ MonoBehaviour:
   POIs:
   - {fileID: 5077602992299132532, guid: 2f552f4946ac354438312417372c2d1c, type: 3}
   - {fileID: 191434899804468375, guid: 39c1fbbd5c6a186459b264df16040301, type: 3}
+  - {fileID: 1381515443855005438, guid: 7ba2c59c18015aa40b78e73eedead6b5, type: 3}
   Resources:
   - {fileID: 7109307304986196898, guid: 92e0d45708c488e4f9e06c0b57868081, type: 3}
   - {fileID: 7109307304986196898, guid: 1fe34a4027da02945ae8abbe81ae4f2c, type: 3}
